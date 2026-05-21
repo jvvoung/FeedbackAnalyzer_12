@@ -106,7 +106,7 @@ build\feedback_analyzer.exe
 
 1. textarea에 `배송이 너무 늦어요. 화가 납니다.` 입력 → **입력하기** (POST `/analyze`)
 2. **분석 결과** stat에서 감정(부정) · 키워드(배송) 건수 확인
-3. 감정=`부정`, 키워드=`배송` 선택 → **분  석** (POST `/filter`)
+3. 감정=`부정`, 키워드=`배송` 선택 → **필터 적용** (POST `/filter`)
 4. **결과 다운로드** 클릭 (GET `/download`) → `filtered_feedback.csv` 수신
 
 ---
@@ -141,16 +141,16 @@ build\feedback_analyzer.exe
 
 ### 키워드 카테고리 (Category Keyword)
 
-| 카테고리 | 라벨 (UTF-8) | 매칭 규칙 (목표) | Constants 출처 |
+| 카테고리 | 라벨 (UTF-8) | 판정 규칙 (목표) | Constants 출처 |
 |----------|--------------|------------------|----------------|
-| 배송 | `배송` | `CATEGORY_KEYWORDS["배송"]["main"]` 및 `sub` 키워드 | `Constants::CATEGORY_KEYWORDS` |
-| 품질 | `품질` | 동일 | `Constants::CATEGORY_KEYWORDS` |
-| 가격 | `가격` | 동일 | `Constants::CATEGORY_KEYWORDS` |
-| 서비스 | `서비스` | 동일 | `Constants::CATEGORY_KEYWORDS` |
-| 사용성 | `사용성` | 동일 | `Constants::CATEGORY_KEYWORDS` |
+| 배송 | `배송` | `CATEGORY_KEYWORDS["배송"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 품질 | `품질` | `CATEGORY_KEYWORDS["품질"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 가격 | `가격` | `CATEGORY_KEYWORDS["가격"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 서비스 | `서비스` | `CATEGORY_KEYWORDS["서비스"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 사용성 | `사용성` | `CATEGORY_KEYWORDS["사용성"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
 
-- **`main` 키워드:** 집계·필터 공통 매칭 기준 (예: `배송`, `택배`, `배달`)
-- **`sub` 키워드:** 세부 분류 (예: `배송` → `time`, `type`, `status`)
+- **`main` 키워드:** 집계·필터 공통 매칭 기준 (예: `배송` → `배송`, `택배`, `배달`)
+- **`sub` 키워드:** Constants 내부 세부 분류용 (`time`, `type`, `status` 등) — 집계·필터 매칭에는 사용하지 않음
 - **품질 카테고리 ≠ 감정:** `품질`/`서비스` 키워드와 감정 3분류를 혼동하지 않음 (`.cursorrules` §3)
 
 ### 필터 sentinel
@@ -207,7 +207,7 @@ text
 |---|-------------|-----------|
 | 1 | `sentiment=중립&keyword=전체` | 중립 분류 피드백 subset + 집계 stat |
 | 2 | `sentiment=전체&keyword=배송` | 배송 카테고리 피드백 subset + 집계 stat |
-| 3 | `sentiment=부정&keyword=배송` | 부정 **且** 배송 교집합 + 다운로드 버튼 표시 |
+| 3 | `sentiment=부정&keyword=배송` | 부정 **및** 배송 교집합 + 다운로드 버튼 표시 |
 
 #### 비정상 케이스
 
@@ -245,29 +245,32 @@ text
 
 ## 아키텍처
 
-### 계층 다이어그램 (As-Is)
+### 계층 다이어그램
+
+**As-Is (현재):**
 
 ```mermaid
 flowchart TB
     Browser["Browser"]
-    Main["main.cpp\n(Route + HTML + CSV Parse)"]
+    Main["Route Handlers\n(main.cpp)"]
     TA["TextAnalyzer"]
     F["Filters"]
     C["Constants"]
-    S["Session"]
-    UI["UIComponents"]
+    S["Session\n(AppState)"]
+    HR["HtmlRenderer\n(renderPage in main.cpp)"]
 
     Browser --> Main
     Main --> TA
     Main --> F
     Main --> S
-    Main --> UI
+    Main --> HR
     TA --> C
     F --> C
     F -.->|"S_KEYWORDS (중복)"| F
+    HR --> S
 ```
 
-### To-Be (Phase 2~3 목표)
+**To-Be (Phase 2~3 목표):**
 
 ```mermaid
 flowchart TB
@@ -276,15 +279,15 @@ flowchart TB
     HR["HtmlRenderer"]
     TA["TextAnalyzer"]
     F["Filters"]
-    AS["AppState / Session"]
+    AS["Session / AppState"]
     C["Constants"]
     FB["Feedback"]
 
     Browser --> RH
-    RH --> HR
     RH --> TA
     RH --> F
     RH --> AS
+    RH --> HR
     TA --> C
     TA --> FB
     F --> C
@@ -305,7 +308,7 @@ flowchart TB
 
 1. `src/cpp/Constants.cpp` — `Constants::init()`에 `CATEGORY_KEYWORDS[u8"새카테고리"]["main"]` 및 `sub` 키워드 등록
 2. `src/cpp/UIComponents.cpp` — `UIComponents::CATS` 벡터에 `u8"새카테고리"` 추가
-3. 단위 테스트 — 집계·필터에 새 카테고리 반영 확인
+3. 단위 테스트 — 집계·필터에 새 카테고리 `main` 키워드 반영 확인
 4. **변경 금지:** `httplib.h`, HTTP 5엔드포인트 path/method, 감정 3분류 라벨
 
 > **원칙:** 카테고리 추가 시 `Constants::CATEGORY_KEYWORDS` + `UIComponents::CATS` **2곳만** 변경 (Shotgun Surgery 방지, `docs/PRD.md` §4.4)
@@ -320,7 +323,7 @@ flowchart TB
 
 ## 프로젝트 구조
 
-근거: `docs/analysis.md` §3 (tests/는 Phase 1 목표)
+근거: `docs/analysis.md` §3 (`tests/`는 Phase 1 목표)
 
 ```
 FeedbackAnalyzer_12/
@@ -343,7 +346,7 @@ FeedbackAnalyzer_12/
     ├── Filters.h/cpp       # 필터링
     ├── Constants.h/cpp     # 감정·카테고리 키워드 상수
     ├── Session.h/cpp       # 인메모리 세션 상태
-    ├── UIComponents.h/cpp # UI 카테고리 목록
+    ├── UIComponents.h/cpp  # UI 카테고리 목록
     ├── Logger.h/cpp        # 콘솔 로깅
     └── FileHandler.h       # (Lava Flow) 정리 대상
 ```
@@ -381,7 +384,7 @@ ctest --test-dir build --output-on-failure
 
 도구: gcov/lcov 또는 동등 (`docs/PRD.md` §4.3, `.cursorrules` §5)
 
-**경계값 테스트 필수:** 빈 입력, 단일 피드백, `중립`만 해당, `전체` 필ter, `text` 컬럼 없는 CSV, main 키워드만 포함 피드백 (`docs/PRD.md` §4.3)
+**경계값 테스트 필수:** 빈 입력, 단일 피드백, `중립`만 해당, `전체` 필터, `text` 컬럼 없는 CSV, main 키워드만 포함 피드백 (`docs/PRD.md` §4.3)
 
 ---
 
@@ -400,7 +403,7 @@ ctest --test-dir build --output-on-failure
 | 상태 | 저장소 | 용도 |
 |------|--------|------|
 | 전체 피드백 | `Session::currentFeedbacks` | POST `/analyze`, `/upload` 누적 |
-| 마지막 필터 결과 | `fil_data` (→ Phase 3 `AppState`) | GET `/download` 소스 |
+| 마지막 필터 결과 | `fil_data` (→ Phase 3 `AppState::lastFilteredFeedbacks`) | GET `/download` 소스 |
 
 ### (선택 Phase 5) File DB
 
@@ -408,8 +411,8 @@ ctest --test-dir build --output-on-failure
 |------|------|
 | 저장 대상 | `Constants::SENTIMENT_KEYWORDS` (긍정/중립/부정) |
 | 저장 위치 | `data/sentiment_keywords.json` (또는 `.csv`) |
-| 기동 시 | 파일 존재 → 로드; 없음 → 기본값 생성 |
-| CRUD | 웹 UI 또는 CLI로 키워드 추가·삭제 |
+| 기동 시 | 파일 존재 → 로드; 없음 → `Constants::init()` 기본값 + 파일 생성 |
+| CRUD | 웹 UI 또는 CLI로 키워드 추가·삭제; 변경 후 `/filter`·집계에 즉시 반영 |
 
 근거: `docs/PRD.md` §5.4, `project_purpose.md` §6.1-7
 
@@ -455,7 +458,7 @@ text
 
 | 항목 | 내용 |
 |------|------|
-| 입력 | `test_feedback_trend.csv` |
+| 입력 | `test_feedback_trend.csv` (프로젝트 루트 또는 `data/`) |
 | 차트 | 시계열 선 그래프 (X: 날짜/순번, Y: 감정·카테고리 건수) |
 | 출력 | HTML 대시보드 "Trend" 섹션 |
 
@@ -539,7 +542,7 @@ text
 
 다음 변경 시 **`docs/PRD.md` 개정 없이 merge 금지** (`docs/PRD.md` §7.2):
 
-- HTTP 5엔드포인트 path/method
+- HTTP 5엔드포인트 path/method (`/`, `/analyze`, `/upload`, `/filter`, `/download`)
 - 감정 3분류 라벨 (`긍정`, `중립`, `부정`)
 - CSV 출력 BOM·`text\n` 헤더 형식
 
