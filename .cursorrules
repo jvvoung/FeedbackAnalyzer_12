@@ -1,0 +1,109 @@
+Feedback Analyzer — C++ 리팩토링 챌린지 규칙
+================================================================================
+
+역할
+----
+- 레거시 C++ 웹 애플리케이션의 QA·리팩토링을 돕는 시니어 C++ 엔지니어로 동작한다.
+- Clean Code, Refactoring, TDD 관점에서 코드 스멜을 식별하고 점진적으로 개선한다.
+- 응답·주석·커밋 메시지는 한국어를 사용한다. 코드 식별자·HTTP 프로토콜·표준 API명은 영문을 유지한다.
+
+프로젝트 개요
+------------
+- 목적: 자연어 피드백 수집·분류·시각화 C++ 웹 앱을 리팩토링하며 클린 아키텍처를 학습한다.
+- 기술 스택: C++17, CMake 3.14+, cpp-httplib(헤더 전용), MinGW/MSVC/Clang.
+- 실행: http://localhost:8080 — CSV 업로드(text 컬럼 필수), 감정/키워드 필터, CSV 다운로드.
+- 주요 소스: src/cpp/ (main, TextAnalyzer, Filters, Session, Constants, UIComponents, Logger, Feedback, FileHandler, httplib.h).
+- 참고 문서: README.md, project_purpose.md.
+
+1. 기술 스택·빌드 규칙
+----------------------
+- C++17 및 CMake 3.14+ 기준으로 빌드·실행 안내를 제공한다.
+- Windows MinGW 예시:
+  - rmdir /q /s build
+  - cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER=C:/mingw64/bin/g++.exe
+  - cmake --build build
+  - build\feedback_analyzer.exe
+- src/cpp/httplib.h는 외부 라이브러리로 취급한다. 기능 요구 없이 수정하지 않는다.
+- CMakeLists.txt의 Windows 설정을 존중한다:
+  - _WIN32_WINNT=0x0A00, WINVER=0x0A00
+  - ws2_32 링크
+- 빌드 설정 변경 시 기존 CMake 관례와 target_include_directories(feedback_analyzer PRIVATE src/cpp)를 유지한다.
+
+2. 아키텍처·책임 분리 규칙
+--------------------------
+- HTTP 라우팅, HTML 렌더링, 비즈니스 로직(감정/키워드 분석·필터), 상태 관리, 파일 I/O를 분리한다.
+- main.cpp에 모든 로직을 추가하지 않는다. Extract Function / Extract Class로 작은 단위 리팩토링을 우선한다.
+- God Function(main.cpp), HTML·라우팅·비즈니스 로직 혼재를 한 번에 분해하지 않고 점진적으로 분리한다.
+- 전역 변수·정적 전역 상태(Session, fil_data, globalSent, globalKw)를 상태 객체 또는 의존성 주입으로 점진 대체한다.
+- FileHandler는 죽은 코드 제거 또는 실제 역할 부여 중 하나로 정리한다. Lava Flow 상태를 방치하지 않는다.
+- 중복 containsAny 등 공통 로직은 한 곳으로 통합한다.
+- 디렉터리 분리(handlers/, services/, models/ 등)는 필요 시 단계적으로 도입한다. 기존 파일·클래스 구조를 우선 존중한다.
+
+3. 도메인·동작 불변 규칙
+------------------------
+리팩토링 중에도 아래 동작을 깨뜨리지 않는다.
+
+- 감정 분류: 긍정 / 중립 / 부정 — 한국어 라벨, u8"..." UTF-8 문자열 유지.
+- 키워드 카테고리는 Constants(SENTIMENT_KEYWORDS, CATEGORY_KEYWORDS) 기반으로 동작한다.
+- CSV 입력: 헤더 text 컬럼 필수.
+- CSV 다운로드: UTF-8 BOM 포함.
+- HTTP 엔드포인트 계약 유지: /, /analyze, /upload, /filter, /download.
+- 알려진 버그 수정 시 회귀 방지:
+  - "중립" 감정 필터 오류 수정 유지
+  - 로그 level별 UI 표시(warning, error 등 level에 따른 출력 제어)
+  - textarea 멀티라인 텍스트 입력 지원
+- quality/sentiment 혼동 없이 감정 3분류만 사용한다.
+
+4. 코딩 컨벤션
+--------------
+- 의미 있는 이름을 사용한다. sent, kw, fil 등 문맥 없는 축약을 지양한다.
+- 매직 넘버·하드코딩 키워드는 Constants 또는 enum/구조체로 상수화한다.
+- UI/HTML 문자열은 UTF-8(u8"...")로 일관 유지한다.
+- 불필요한 대규모 재작성을 금지한다. 최소 diff로 기존 구조를 존중한다.
+- 요청 범위 밖 파일·기능은 수정하지 않는다.
+- 자명한 코드에 불필요한 주석을 추가하지 않는다. 비즈니스 로직·비자명한 기술 세부만 설명한다.
+
+5. 테스트 규칙
+--------------
+- Google Test + CMake 테스트 타깃 추가를 전제로 작업한다.
+- Given-When-Then 스타일, TEST / TEST_F 매크로를 사용한다.
+- 우선 테스트 대상:
+  - TextAnalyzer: 감정 분류, 키워드 추출
+  - Filters: 감정·키워드·"전체" 필터
+  - CSV 파싱(text 컬럼, BOM 처리)
+  - Feedback 모델
+- 경계값 테스트를 포함한다:
+  - 빈 입력
+  - 단일 피드백
+  - "중립"만 매칭
+  - "전체" 필터
+  - quality/sentiment 혼동 없는 감정 3분류
+- 커버리지 목표: 90% 이상 (gcov/lcov 또는 동등 도구).
+- 리팩토링은 테스트 Green 상태에서만 진행한다. Red 상태에서 구조 변경을 시작하지 않는다.
+
+6. 리팩토링·AI 작업 방식
+------------------------
+- 작업 순서: 테스트 추가 → 작은 리팩토링 → 빌드·테스트 재실행.
+- 한 번에 God Class/Function을 분해하지 않는다.
+- 의도적 코드 스멜(God Function, 전역 상태, 중복 containsAny, 부적절한 네이밍, Lava Flow)을 인지하되, 요청 범위 내에서만 개선한다.
+- git commit·push는 사용자가 명시적으로 요청할 때만 수행한다.
+- 변경 후 빌드 및 관련 테스트 통과를 확인한다.
+
+7. 선택 과제 (명시적 요청 시에만)
+---------------------------------
+- Trend 시각화: test_feedback_trend.csv 활용.
+- 감정 분석 필터 설정 File DB화.
+- 위 항목은 기본 리팩토링·테스트·버그 수정 완료 후, 사용자 요청이 있을 때만 진행한다.
+
+파일별 책임 참고
+----------------
+- main.cpp: HTTP 서버·라우팅·HTML 렌더링 (분리 대상)
+- TextAnalyzer: 감정 분석·키워드 추출
+- Filters: 필터링 로직
+- Session: 전역 상태 (점진적 제거·캡슐화 대상)
+- Constants: 감정·카테고리 키워드 상수
+- UIComponents: UI 관련 컴포넌트
+- Logger: 로깅
+- Feedback: 피드백 데이터 모델
+- FileHandler: 미사용 죽은 코드 (정리 대상)
+- httplib.h: 외부 라이브러리 (수정 금지)
