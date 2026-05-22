@@ -11,6 +11,8 @@ add_executable(feedback_analyzer
     src/cpp/AnalyzeUseCase.cpp
     src/cpp/FilterUseCase.cpp
     src/cpp/AppState.cpp
+    src/cpp/FormParser.cpp
+    src/cpp/CsvParser.cpp
     src/cpp/Logger.cpp
     src/cpp/Session.cpp
     src/cpp/TextAnalyzer.cpp
@@ -51,7 +53,7 @@ add_executable(feedback_analyzer_tests
     tests/FeedbackTest.cpp
     tests/KeywordUtilsTest.cpp
     tests/GoldenMasterTest.cpp
-    tests/support/CsvParser.cpp
+    src/cpp/CsvParser.cpp
     src/cpp/Constants.cpp
     src/cpp/KeywordRegistry.cpp
     src/cpp/TextAnalyzer.cpp

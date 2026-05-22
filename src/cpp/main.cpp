@@ -7,6 +7,8 @@
 #include "Filters.h"
 #include "AnalyzeUseCase.h"
 #include "FilterUseCase.h"
+#include "FormParser.h"
+#include "CsvParser.h"
 #include "FileHandler.h"
 #include "UIComponents.h"
 #include "Logger.h"
@@ -19,42 +21,6 @@
 static TextAnalyzer textAnalyzer;
 static Filters filters;
 static FileHandler fileHandler;
-
-// URL decode utility
-static std::string urlDecode(const std::string& str) {
-    std::string result;
-    for (size_t i = 0; i < str.size(); i++) {
-        if (str[i] == '%' && i + 2 < str.size()) {
-            int val;
-            std::istringstream iss(str.substr(i + 1, 2));
-            if (iss >> std::hex >> val) {
-                result += static_cast<char>(val);
-                i += 2;
-            } else {
-                result += str[i];
-            }
-        } else if (str[i] == '+') {
-            result += ' ';
-        } else {
-            result += str[i];
-        }
-    }
-    return result;
-}
-
-// Parse form body
-static std::map<std::string, std::string> parseForm(const std::string& body) {
-    std::map<std::string, std::string> params;
-    std::istringstream stream(body);
-    std::string pair;
-    while (std::getline(stream, pair, '&')) {
-        auto eq = pair.find('=');
-        if (eq != std::string::npos) {
-            params[urlDecode(pair.substr(0, eq))] = urlDecode(pair.substr(eq + 1));
-        }
-    }
-    return params;
-}
 
 static std::string getCurrentTimestamp() {
     auto now = std::time(nullptr);
@@ -212,35 +178,6 @@ static std::string renderPage(const std::string& success,
     return html.str();
 }
 
-// Simple CSV line parser
-static std::vector<std::string> parseCsvLine(const std::string& line) {
-    std::vector<std::string> fields;
-    std::string field;
-    bool inQuotes = false;
-    for (size_t i = 0; i < line.size(); i++) {
-        char c = line[i];
-        if (c == '"') {
-            inQuotes = !inQuotes;
-        } else if (c == ',' && !inQuotes) {
-            fields.push_back(field);
-            field.clear();
-        } else {
-            field += c;
-        }
-    }
-    fields.push_back(field);
-    return fields;
-}
-
-static std::size_t findTextColumnIndex(const std::vector<std::string>& headerFields) {
-    for (std::size_t i = 0; i < headerFields.size(); ++i) {
-        if (headerFields[i] == "text") {
-            return i;
-        }
-    }
-    return static_cast<std::size_t>(-1);
-}
-
 int main() {
     Constants::init();
 
@@ -258,7 +195,7 @@ int main() {
     svr.Post("/analyze", [](const httplib::Request& req, httplib::Response& res) {
         try {
             auto& feedbacks = Session::getCurrentFeedbacks();
-            auto params = parseForm(req.body);
+            auto params = FormParser::parse(req.body);
             AnalyzeUseCase analyzeUseCase(textAnalyzer);
             const AnalyzeResult result = analyzeUseCase.analyzeAll(feedbacks, params["text"]);
             std::string html = renderPage(result.successMessage, "", "", result.sentimentResults,
@@ -278,29 +215,16 @@ int main() {
             if (req.form.has_file("file")) {
                 const auto file = req.form.get_file("file");
                 if (!file.content.empty()) {
-                    std::istringstream stream(file.content);
-                    std::string line;
-                    bool firstLine = true;
-                    std::size_t textIndex = static_cast<std::size_t>(-1);
-                    while (std::getline(stream, line)) {
-                        if (!line.empty() && line.back() == '\r') line.pop_back();
-                        if (firstLine) {
-                            firstLine = false;
-                            textIndex = findTextColumnIndex(parseCsvLine(line));
-                            continue;
-                        }
-                        if (line.empty()) continue;
-                        if (textIndex == static_cast<std::size_t>(-1)) continue;
-                        auto fields = parseCsvLine(line);
-                        if (fields.size() > textIndex && !fields[textIndex].empty()) {
-                            feedbacks.push_back(Feedback(fields[textIndex]));
-                        }
-                    }
-                    if (textIndex == static_cast<std::size_t>(-1)) {
+                    CsvParser parser;
+                    const CsvParseResult parseResult = parser.parse(file.content);
+                    if (!parseResult.hasTextColumn) {
                         Logger::logError(u8"CSV에 text 컬럼이 없습니다.");
                         std::string html = renderPage("", "", u8"파일 업로드 중 오류가 발생했습니다.", {}, {}, feedbacks);
                         res.set_content(html, "text/html; charset=UTF-8");
                         return;
+                    }
+                    for (const auto& feedback : parseResult.feedbacks) {
+                        feedbacks.push_back(feedback);
                     }
                     Logger::logInfo(u8"파일이 성공적으로 업로드되었습니다.");
                 }
@@ -319,7 +243,7 @@ int main() {
     svr.Post("/filter", [](const httplib::Request& req, httplib::Response& res) {
         try {
             const auto& feedbacks = Session::getCurrentFeedbacks();
-            auto params = parseForm(req.body);
+            auto params = FormParser::parse(req.body);
             FilterUseCase filterUseCase(textAnalyzer, filters);
             const FilterResult result =
                 filterUseCase.filterAll(feedbacks, params["sentiment"], params["keyword"]);

@@ -102,7 +102,8 @@ CsvParseResult CsvParser::parse(const std::string& csvContent) {
 
     const auto headerFields = parseLine(records[0]);
     const std::size_t textIndex = findTextColumnIndex(headerFields);
-    if (textIndex == static_cast<std::size_t>(-1)) {
+    result.hasTextColumn = textIndex != static_cast<std::size_t>(-1);
+    if (!result.hasTextColumn) {
         return result;
     }
 
