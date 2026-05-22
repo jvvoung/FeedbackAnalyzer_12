@@ -34,7 +34,8 @@ TEST_F(CsvParserTest, Given_HeaderOnlyCsv_When_Parse_Then_ZeroFeedbacks) {
     EXPECT_EQ(result.feedbacks.size(), 0u);
 }
 
-// T-05, AC-2, H-2 — text 컬럼 없음 → 0건 (RED: stub fields[0] fallback으로 failing)
+// T-05, AC-2, H-2 — text 컬럼 없음 → 0건 (RED: stub이 main.cpp와 동일하게 fields[0] fallback)
+// As-Is: feedbacks.size()==1 ("1"). To-Be: empty 또는 parse 실패 — fields[0]을 text로 사용 금지
 TEST_F(CsvParserTest, Given_NoTextColumnCsv_When_Parse_Then_ZeroFeedbacks) {
     // Given: PRD §5.3 — text 컬럼 필수; id,comment 형식
     const std::string csv = "id,comment\n1,hello\n";

@@ -82,7 +82,8 @@ TEST_F(FiltersTest, Given_CanonicalNeutralText_When_FilterSentimentNeutral_Then_
     EXPECT_TRUE(test_support::feedbackSetsEqualByText(filtered, expectedNeutral));
 }
 
-// T-06, AC-3, H-3 — keyword=배송 시 main 키워드 포함 피드백 포함 (RED: main skip 버그 검증)
+// T-06, AC-3, H-3 — keyword=배송 + main("택배")
+// As-Is: sub category type에 "택배" 있어 Green 가능. H-3 RED 대표는 아래 품질/main-only 테스트.
 TEST_F(FiltersTest, Given_TaekbaeMainKeywordText_When_FilterKeywordBaeseong_Then_IncludedInResult) {
     // Given: CATEGORY_KEYWORDS["배송"]["main"]의 "택배"만 포함
     const std::vector<Feedback> feedbacks = {Feedback(u8"택배가 빨라요.")};

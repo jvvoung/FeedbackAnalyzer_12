@@ -71,9 +71,9 @@ TEST_F(TextAnalyzerTest, Given_EmptyFeedbackList_When_AnalyzeSentiment_Then_AllC
 }
 
 // T-07, EX-10 — 카테고리 키워드만, 감정 키워드 없음 → 중립
+// Invariant: 카테고리(품질)≠감정(3분류); "별로"는 SENTIMENT_KEYWORDS["부정"]에 있어 본 테스트에서 제외
 TEST_F(TextAnalyzerTest, Given_CategoryKeywordOnly_When_AnalyzeSentiment_Then_ClassifiedAsNeutral) {
     // Given: CATEGORY_KEYWORDS["품질"]["main"]("품질")만 포함, SENTIMENT_KEYWORDS 미포함
-    // (T-07 원문 "별로"는 Constants::SENTIMENT_KEYWORDS["부정"]에 포함되어 제외)
     const std::vector<Feedback> feedbacks = {Feedback(u8"품질이 형편없어요.")};
 
     // When
