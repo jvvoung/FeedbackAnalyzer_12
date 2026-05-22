@@ -7,9 +7,9 @@
 
 class Filters {
 public:
-    std::vector<Feedback> fil(const std::vector<Feedback>& dataList,
-                              const std::string& sFilter,
-                              const std::string& kFilter) {
+    std::vector<Feedback> filter(const std::vector<Feedback>& dataList,
+                                 const std::string& sFilter,
+                                 const std::string& kFilter) {
         std::vector<Feedback> tmpFiltered;
 
         if (sFilter != u8"전체") {

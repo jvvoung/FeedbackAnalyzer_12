@@ -134,7 +134,7 @@ inline std::string buildGoldenFile() {
     {
         std::vector<Feedback> feedbacks = {Feedback(u8"배송이 너무 늦어요. 화가 납니다.")};
         TextAnalyzer analyzer;
-        out << serializeAnalyzeResult(analyzer.sent(feedbacks), analyzer.kw(feedbacks));
+        out << serializeAnalyzeResult(analyzer.analyzeSentiment(feedbacks), analyzer.analyzeKeywords(feedbacks));
     }
     out << "---\n";
     out << sectionHeader("GM-D-02", "FilterNeutral");
@@ -142,7 +142,7 @@ inline std::string buildGoldenFile() {
         std::vector<Feedback> feedbacks = {Feedback(u8"그냥 그래요. 특별한 감정 없음.")};
         Filters filters;
         suppressStdout();
-        out << serializeFilterResult(filters.fil(feedbacks, u8"중립", u8"전체"));
+        out << serializeFilterResult(filters.filter(feedbacks, u8"중립", u8"전체"));
     }
     out << "---\n";
     out << sectionHeader("GM-D-03", "CsvParseTextColumn");
@@ -160,7 +160,7 @@ inline std::string buildGoldenFile() {
         };
         Filters filters;
         suppressStdout();
-        out << serializeFilterResult(filters.fil(feedbacks, u8"전체", u8"전체"));
+        out << serializeFilterResult(filters.filter(feedbacks, u8"전체", u8"전체"));
     }
     out << "---\n";
     return out.str();
@@ -265,14 +265,14 @@ inline bool updateGoldenFile(const std::string& path) {
 inline std::string captureGmD01Body() {
     std::vector<Feedback> feedbacks = {Feedback(u8"배송이 너무 늦어요. 화가 납니다.")};
     TextAnalyzer analyzer;
-    return serializeAnalyzeResult(analyzer.sent(feedbacks), analyzer.kw(feedbacks));
+    return serializeAnalyzeResult(analyzer.analyzeSentiment(feedbacks), analyzer.analyzeKeywords(feedbacks));
 }
 
 inline std::string captureGmD02Body() {
     std::vector<Feedback> feedbacks = {Feedback(u8"그냥 그래요. 특별한 감정 없음.")};
     Filters filters;
     suppressStdout();
-    return serializeFilterResult(filters.fil(feedbacks, u8"중립", u8"전체"));
+    return serializeFilterResult(filters.filter(feedbacks, u8"중립", u8"전체"));
 }
 
 inline std::string captureGmD03Body() {
@@ -288,7 +288,7 @@ inline std::string captureGmD04Body() {
     };
     Filters filters;
     suppressStdout();
-    return serializeFilterResult(filters.fil(feedbacks, u8"전체", u8"전체"));
+    return serializeFilterResult(filters.filter(feedbacks, u8"전체", u8"전체"));
 }
 
 }  // namespace golden

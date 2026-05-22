@@ -22,8 +22,8 @@ AnalyzeResult AnalyzeUseCase::analyzeAll(std::vector<Feedback>& feedbacks, const
     result.successMessage = AppMessages::feedbackCountSuccess(feedbacks.size());
 
     if (!feedbacks.empty()) {
-        result.sentimentResults = analyzer_.sent(feedbacks);
-        result.keywordResults = analyzer_.kw(feedbacks);
+        result.sentimentResults = analyzer_.analyzeSentiment(feedbacks);
+        result.keywordResults = analyzer_.analyzeKeywords(feedbacks);
         Logger::logInfo(u8"감성 분석 완료");
         Logger::logInfo(u8"키워드 분석 완료");
     }

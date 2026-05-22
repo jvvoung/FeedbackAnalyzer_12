@@ -9,7 +9,7 @@
 #include "FormParser.h"
 #include "HtmlPageRenderer.h"
 #include "Logger.h"
-#include "Session.h"
+#include "FeedbackSession.h"
 
 namespace {
 
@@ -38,13 +38,12 @@ void RouteHandlers::registerRoutes(httplib::Server& server) {
 }
 
 void RouteHandlers::handleGetRoot(const httplib::Request&, httplib::Response& res) {
-    Session::initSessionStateUgly();
     setHtmlResponse(res, {AppMessages::analyzerStart(), "", "", {}, {}});
 }
 
 void RouteHandlers::handlePostAnalyze(const httplib::Request& req, httplib::Response& res) {
     try {
-        auto& feedbacks = Session::getCurrentFeedbacks();
+        auto& feedbacks = FeedbackSession::getCurrent();
         auto params = FormParser::parse(req.body);
         AnalyzeUseCase analyzeUseCase(textAnalyzer_);
         const AnalyzeResult result = analyzeUseCase.analyzeAll(feedbacks, params["text"]);
@@ -57,7 +56,7 @@ void RouteHandlers::handlePostAnalyze(const httplib::Request& req, httplib::Resp
 
 void RouteHandlers::handlePostUpload(const httplib::Request& req, httplib::Response& res) {
     try {
-        auto& feedbacks = Session::getCurrentFeedbacks();
+        auto& feedbacks = FeedbackSession::getCurrent();
         if (req.form.has_file("file")) {
             const auto file = req.form.get_file("file");
             if (!file.content.empty()) {
@@ -83,7 +82,7 @@ void RouteHandlers::handlePostUpload(const httplib::Request& req, httplib::Respo
 
 void RouteHandlers::handlePostFilter(const httplib::Request& req, httplib::Response& res) {
     try {
-        const auto& feedbacks = Session::getCurrentFeedbacks();
+        const auto& feedbacks = FeedbackSession::getCurrent();
         auto params = FormParser::parse(req.body);
         FilterUseCase filterUseCase(textAnalyzer_, filters_);
         const FilterResult result =

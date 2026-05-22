@@ -13,7 +13,7 @@ private:
     static std::map<std::string, int> globalKw;
 
 public:
-    std::map<std::string, int> sent(const std::vector<Feedback>& feedbacks) {
+    std::map<std::string, int> analyzeSentiment(const std::vector<Feedback>& feedbacks) {
         std::map<std::string, int> res;
         res[u8"긍정"] = 0;
         res[u8"중립"] = 0;
@@ -27,7 +27,7 @@ public:
         return res;
     }
 
-    std::map<std::string, int> kw(const std::vector<Feedback>& feedbacks) {
+    std::map<std::string, int> analyzeKeywords(const std::vector<Feedback>& feedbacks) {
         std::map<std::string, int> res2;
         for (const auto& cat : KeywordRegistry::categoryNames()) {
             res2[cat] = 0;

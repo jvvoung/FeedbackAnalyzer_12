@@ -26,10 +26,10 @@ TEST_F(FiltersTest, Given_NegativeDeliveryText_When_FilterNegativeAndBaeseong_Th
 
     // When: analyze + filter (sentiment=부정, keyword=배송)
     TextAnalyzer analyzer;
-    const auto sentimentResults = analyzer.sent(feedbacks);
-    const auto keywordResults = analyzer.kw(feedbacks);
+    const auto sentimentResults = analyzer.analyzeSentiment(feedbacks);
+    const auto keywordResults = analyzer.analyzeKeywords(feedbacks);
     Filters filters;
-    const auto filtered = filters.fil(feedbacks, u8"부정", u8"배송");
+    const auto filtered = filters.filter(feedbacks, u8"부정", u8"배송");
 
     // Then: 집계 건수 1, 필터 결과 1건
     EXPECT_EQ(sentimentResults.at(u8"부정"), 1);
@@ -49,9 +49,9 @@ TEST_F(FiltersTest, Given_NeutralText_When_FilterSentimentNeutral_Then_MatchesTe
         Feedback(u8"그냥 그래요. 특별한 감정 없음."),
     };
 
-    // When: Filters::fil(feedbacks, u8"중립", u8"전체")
+    // When: Filters::filter(feedbacks, u8"중립", u8"전체")
     Filters filters;
-    const auto filtered = filters.fil(feedbacks, u8"중립", u8"전체");
+    const auto filtered = filters.filter(feedbacks, u8"중립", u8"전체");
     const auto expectedNeutral = test_support::getAnalyzerNeutralSubset(feedbacks);
 
     // Then: 결과 집합 == TextAnalyzer가 동일 입력에 대해 중립으로 분류한 집합
@@ -74,7 +74,7 @@ TEST_F(FiltersTest, Given_MixedThreeFeedbacks_When_FilterAllSentimentAllKeyword_
 
     // When: filter sentiment=전체, keyword=전체
     Filters filters;
-    const auto filtered = filters.fil(feedbacks, u8"전체", u8"전체");
+    const auto filtered = filters.filter(feedbacks, u8"전체", u8"전체");
 
     // Then: 입력 전체 3건 반환
     EXPECT_EQ(filtered.size(), 3u);
@@ -93,7 +93,7 @@ TEST_F(FiltersTest, Given_MainKeywordOnly_When_FilterDelivery_Then_Included) {
 
     // When: filter keyword=배송, sentiment=전체
     Filters filters;
-    const auto filtered = filters.fil(feedbacks, u8"전체", u8"배송");
+    const auto filtered = filters.filter(feedbacks, u8"전체", u8"배송");
 
     // Then: 해당 Feedback 포함
     ASSERT_EQ(filtered.size(), 1u);

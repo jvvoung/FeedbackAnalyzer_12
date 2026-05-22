@@ -18,7 +18,7 @@ add_executable(feedback_analyzer
     src/cpp/CsvExporter.cpp
     src/cpp/RouteHandlers.cpp
     src/cpp/Logger.cpp
-    src/cpp/Session.cpp
+    src/cpp/FeedbackSession.cpp
     src/cpp/TextAnalyzer.cpp
     src/cpp/UIComponents.cpp
 )
