@@ -8,6 +8,8 @@ add_executable(feedback_analyzer
     src/cpp/main.cpp
     src/cpp/Constants.cpp
     src/cpp/KeywordRegistry.cpp
+    src/cpp/AnalyzeUseCase.cpp
+    src/cpp/FilterUseCase.cpp
     src/cpp/Logger.cpp
     src/cpp/Session.cpp
     src/cpp/TextAnalyzer.cpp

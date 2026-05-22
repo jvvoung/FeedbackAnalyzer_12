@@ -4,6 +4,8 @@
 #include "Session.h"
 #include "TextAnalyzer.h"
 #include "Filters.h"
+#include "AnalyzeUseCase.h"
+#include "FilterUseCase.h"
 #include "FileHandler.h"
 #include "UIComponents.h"
 #include "Logger.h"
@@ -257,35 +259,10 @@ int main() {
         try {
             auto& feedbacks = Session::getCurrentFeedbacks();
             auto params = parseForm(req.body);
-            std::string text = params["text"];
-
-            if (!text.empty()) {
-                // trim
-                auto start = text.find_first_not_of(" \t\r\n");
-                auto end = text.find_last_not_of(" \t\r\n");
-                if (start != std::string::npos) {
-                    text = text.substr(start, end - start + 1);
-                    feedbacks.push_back(Feedback(text));
-                }
-            }
-
-            for (const auto& fb : feedbacks) {
-                Logger::logInfo(fb.getText());
-            }
-
-            Logger::logInfo(u8"현재 " + std::to_string(feedbacks.size()) + u8"개의 피드백이 입력되었습니다.");
-
-            std::string success = std::to_string(feedbacks.size()) + u8"개의 피드백이 입력되었습니다.";
-            std::map<std::string, int> sentimentResults, keywordResults;
-
-            if (!feedbacks.empty()) {
-                sentimentResults = textAnalyzer.sent(feedbacks);
-                keywordResults = textAnalyzer.kw(feedbacks);
-                Logger::logInfo(u8"감성 분석 완료");
-                Logger::logInfo(u8"키워드 분석 완료");
-            }
-
-            std::string html = renderPage(success, "", "", sentimentResults, keywordResults, feedbacks);
+            AnalyzeUseCase analyzeUseCase(textAnalyzer);
+            const AnalyzeResult result = analyzeUseCase.analyzeAll(feedbacks, params["text"]);
+            std::string html = renderPage(result.successMessage, "", "", result.sentimentResults,
+                                          result.keywordResults, feedbacks);
             res.set_content(html, "text/html; charset=UTF-8");
         } catch (const std::exception& e) {
             Logger::logError(std::string(u8"오류 발생: ") + e.what());
@@ -341,25 +318,20 @@ int main() {
     // POST /filter
     svr.Post("/filter", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            auto& feedbacks = Session::getCurrentFeedbacks();
+            const auto& feedbacks = Session::getCurrentFeedbacks();
             auto params = parseForm(req.body);
-            std::string sentiment = params["sentiment"];
-            std::string keyword = params["keyword"];
+            FilterUseCase filterUseCase(textAnalyzer, filters, fil_data);
+            const FilterResult result =
+                filterUseCase.filterAll(feedbacks, params["sentiment"], params["keyword"]);
 
-            if (!feedbacks.empty()) {
-                auto filtered = filters.fil(feedbacks, sentiment, keyword);
-                if (!filtered.empty()) {
-                    fil_data = filtered;
-                    auto sentimentResults = textAnalyzer.sent(filtered);
-                    auto keywordResults = textAnalyzer.kw(filtered);
-                    Logger::logInfo(u8"필터링 결과: " + std::to_string(filtered.size()) + u8"개의 피드백");
-                    std::string html = renderPage("", "", "", sentimentResults, keywordResults, filtered);
-                    res.set_content(html, "text/html; charset=UTF-8");
-                } else {
-                    Logger::logWarning(u8"필터링 결과가 없습니다.");
-                    std::string html = renderPage("", u8"필터링 결과가 없습니다.", "", {}, {}, {});
-                    res.set_content(html, "text/html; charset=UTF-8");
-                }
+            if (result.status == FilterStatus::Success) {
+                std::string html = renderPage("", "", "", result.sentimentResults, result.keywordResults,
+                                              result.filtered);
+                res.set_content(html, "text/html; charset=UTF-8");
+            } else if (result.status == FilterStatus::NoResults) {
+                Logger::logWarning(u8"필터링 결과가 없습니다.");
+                std::string html = renderPage("", u8"필터링 결과가 없습니다.", "", {}, {}, {});
+                res.set_content(html, "text/html; charset=UTF-8");
             } else {
                 Logger::logWarning(u8"분석할 피드백이 없습니다.");
                 std::string html = renderPage("", u8"분석할 피드백이 없습니다.", "", {}, {}, {});
