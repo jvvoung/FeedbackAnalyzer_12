@@ -55,9 +55,12 @@ add_executable(feedback_analyzer_tests
     tests/FeedbackTest.cpp
     tests/KeywordUtilsTest.cpp
     tests/GoldenMasterTest.cpp
+    tests/FileHandlerTest.cpp
     src/cpp/CsvParser.cpp
     src/cpp/Constants.cpp
     src/cpp/KeywordRegistry.cpp
+    src/cpp/CsvExporter.cpp
+    src/cpp/FileHandler.cpp
 )
 
 target_include_directories(feedback_analyzer_tests PRIVATE
