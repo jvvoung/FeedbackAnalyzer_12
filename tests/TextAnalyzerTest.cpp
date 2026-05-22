@@ -1,6 +1,15 @@
 #include <gtest/gtest.h>
 
-class TextAnalyzerTest : public ::testing::Test {};
+#include <vector>
+
+#include "Constants.h"
+#include "Feedback.h"
+#include "TextAnalyzer.h"
+
+class TextAnalyzerTest : public ::testing::Test {
+protected:
+    void SetUp() override { Constants::init(); }
+};
 
 // Given-When-Then
 // Given: 빈 vector<Feedback>
@@ -8,7 +17,17 @@ class TextAnalyzerTest : public ::testing::Test {};
 // Then:  긍정=0, 중립=0, 부정=0
 // test_plan: T-01
 TEST_F(TextAnalyzerTest, Given_EmptyFeedbackList_When_AnalyzeSentiment_Then_AllCountsAreZero) {
-    FAIL() << "RED";  // T-01
+    // Given: 빈 vector<Feedback>
+    std::vector<Feedback> feedbacks;
+
+    // When: TextAnalyzer::sent(feedbacks)
+    TextAnalyzer analyzer;
+    const auto result = analyzer.sent(feedbacks);
+
+    // Then: 긍정=0, 중립=0, 부정=0
+    EXPECT_EQ(result.at(u8"긍정"), 0);
+    EXPECT_EQ(result.at(u8"중립"), 0);
+    EXPECT_EQ(result.at(u8"부정"), 0);
 }
 
 // Given-When-Then
