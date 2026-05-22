@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "Feedback.h"
 #include "Filters.h"
+#include "TextAnalyzer.h"
 #include "support/TestHelpers.h"
 
 class FiltersTest : public ::testing::Test {
@@ -18,7 +19,23 @@ protected:
 // Then:  집계 건수 1, 필터 결과 1건
 // test_plan: T-02
 TEST_F(FiltersTest, Given_NegativeDeliveryText_When_FilterNegativeAndBaeseong_Then_OneResult) {
-    FAIL() << "RED";  // T-02
+    // Given: Feedback 1건 text="배송이 너무 늦어요. 화가 납니다."
+    std::vector<Feedback> feedbacks = {
+        Feedback(u8"배송이 너무 늦어요. 화가 납니다."),
+    };
+
+    // When: analyze + filter (sentiment=부정, keyword=배송)
+    TextAnalyzer analyzer;
+    const auto sentimentResults = analyzer.sent(feedbacks);
+    const auto keywordResults = analyzer.kw(feedbacks);
+    Filters filters;
+    const auto filtered = filters.fil(feedbacks, u8"부정", u8"배송");
+
+    // Then: 집계 건수 1, 필터 결과 1건
+    EXPECT_EQ(sentimentResults.at(u8"부정"), 1);
+    EXPECT_EQ(keywordResults.at(u8"배송"), 1);
+    ASSERT_EQ(filtered.size(), 1u);
+    EXPECT_EQ(filtered[0].getText(), u8"배송이 너무 늦어요. 화가 납니다.");
 }
 
 // Given-When-Then
