@@ -6,18 +6,12 @@
 #include "Feedback.h"
 #include "Constants.h"
 #include "KeywordUtils.h"
+#include "SentimentClassifier.h"
 
 namespace test_support {
 
-// TextAnalyzer 규칙: Constants::SENTIMENT_KEYWORDS["긍정"] → ["부정"] → 기본 "중립"
 inline std::string classifySentimentWithAnalyzerRules(const std::string& text) {
-    if (containsAny(text, Constants::SENTIMENT_KEYWORDS[u8"긍정"])) {
-        return u8"긍정";
-    }
-    if (containsAny(text, Constants::SENTIMENT_KEYWORDS[u8"부정"])) {
-        return u8"부정";
-    }
-    return u8"중립";
+    return SentimentClassifier::classify(text);
 }
 
 inline std::vector<Feedback> getAnalyzerNeutralSubset(const std::vector<Feedback>& feedbacks) {
@@ -39,7 +33,7 @@ inline std::vector<Feedback> getMainCategoryMatches(const std::vector<Feedback>&
     }
     const auto& mainKeywords = Constants::CATEGORY_KEYWORDS.at(category).at("main");
     for (const auto& feedback : feedbacks) {
-        if (containsAny(feedback.getText(), mainKeywords)) {
+        if (KeywordUtils::containsAny(feedback.getText(), mainKeywords)) {
             result.push_back(feedback);
         }
     }

@@ -5,16 +5,10 @@
 #include <iostream>
 #include "Feedback.h"
 #include "Constants.h"
+#include "KeywordUtils.h"
+#include "SentimentClassifier.h"
 
 class Filters {
-private:
-    static bool containsAny(const std::string& text, const std::vector<std::string>& keywords) {
-        for (const auto& kw : keywords) {
-            if (text.find(kw) != std::string::npos) return true;
-        }
-        return false;
-    }
-
 public:
     std::vector<Feedback> fil(const std::vector<Feedback>& dataList,
                               const std::string& sFilter,
@@ -23,16 +17,7 @@ public:
 
         if (sFilter != u8"전체") {
             for (const auto& item : dataList) {
-                std::string txt = item.getText();
-                std::string currentSentiment = u8"중립";
-
-                if (containsAny(txt, Constants::SENTIMENT_KEYWORDS[u8"긍정"])) {
-                    currentSentiment = u8"긍정";
-                } else if (containsAny(txt, Constants::SENTIMENT_KEYWORDS[u8"부정"])) {
-                    currentSentiment = u8"부정";
-                }
-
-                if (currentSentiment == sFilter) {
+                if (SentimentClassifier::classify(item.getText()) == sFilter) {
                     tmpFiltered.push_back(item);
                 }
             }
@@ -46,7 +31,7 @@ public:
                 std::string txt = item.getText();
                 if (Constants::CATEGORY_KEYWORDS.count(kFilter)) {
                     const auto& catMap = Constants::CATEGORY_KEYWORDS.at(kFilter);
-                    if (catMap.count("main") && containsAny(txt, catMap.at("main"))) {
+                    if (catMap.count("main") && KeywordUtils::containsAny(txt, catMap.at("main"))) {
                         finalFiltered.push_back(item);
                     }
                 }
