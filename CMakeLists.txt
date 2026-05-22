@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(feedback_analyzer
     src/cpp/main.cpp
     src/cpp/Constants.cpp
+    src/cpp/KeywordRegistry.cpp
     src/cpp/Logger.cpp
     src/cpp/Session.cpp
     src/cpp/TextAnalyzer.cpp
@@ -49,6 +50,7 @@ add_executable(feedback_analyzer_tests
     tests/GoldenMasterTest.cpp
     tests/support/CsvParser.cpp
     src/cpp/Constants.cpp
+    src/cpp/KeywordRegistry.cpp
     src/cpp/TextAnalyzer.cpp
 )
 

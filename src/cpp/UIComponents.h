@@ -1,13 +1,13 @@
 #pragma once
+
 #include <string>
 #include <vector>
 
-class UIComponents {
-private:
-    static const std::vector<std::string> CATS;
+#include "KeywordRegistry.h"
 
+class UIComponents {
 public:
     static const std::vector<std::string>& getCategories() {
-        return CATS;
+        return KeywordRegistry::categoryNames();
     }
 };
