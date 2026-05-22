@@ -423,8 +423,8 @@ ctest --test-dir build --output-on-failure
 - [ ] HTTP 핸들러 (main.cpp): 90% 목표 아님 — 부록 A 체크리스트로 검증
 
 ### 결함 목록 연결
-- [ ] docs/defect_list.md 생성 — H-1(중립 필터), H-2(CSV text), H-3(main 키워드), H-4(테스트 부재) 기록
-- [ ] 각 결함에 test_plan ID(T-03/T-05/T-06) 및 failing test명 연결
+- [x] docs/defect_list.md 생성 — H-1(중립 필터), H-2(CSV text), H-3(main 키워드), H-4(테스트 부재) 기록
+- [x] 각 결함에 test_plan ID(T-03/T-05/T-06) 및 failing test명 연결
 - [ ] H-1/H-2/H-3 수정 후 `ctest --test-dir build --output-on-failure` Green 확인
 - [ ] Phase 1 Green 직후 lcov baseline 수립 (`docs/test_plan.md` §7.4)
 
