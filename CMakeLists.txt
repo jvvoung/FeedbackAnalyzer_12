@@ -4,6 +4,13 @@ project(FeedbackAnalyzer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(ENABLE_COVERAGE "Enable gcov/lcov instrumentation for feedback_analyzer_tests (MinGW/GCC only)" OFF)
+if(ENABLE_COVERAGE AND MSVC)
+    message(FATAL_ERROR
+        "ENABLE_COVERAGE requires MinGW or GCC. "
+        "MSVC cannot compile u8\"...\" literals with --coverage flags.")
+endif()
+
 set(FA_SRC_ROOT ${CMAKE_SOURCE_DIR}/src/cpp)
 set(FA_INCLUDE_DIRS
     ${FA_SRC_ROOT}
@@ -99,6 +106,11 @@ target_compile_definitions(feedback_analyzer_tests PRIVATE
 
 target_link_libraries(feedback_analyzer_tests PRIVATE GTest::gtest_main)
 
+if(ENABLE_COVERAGE)
+    target_compile_options(feedback_analyzer_tests PRIVATE --coverage -O0 -g)
+    target_link_options(feedback_analyzer_tests PRIVATE --coverage)
+endif()
+
 if(WIN32)
     target_compile_definitions(feedback_analyzer_tests PRIVATE
         _WIN32_WINNT=0x0A00
@@ -117,3 +129,29 @@ set_tests_properties(GoldenMaster PROPERTIES
     LABELS "golden;domain"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
+
+# Local-only: regenerate tests/golden/domain_golden_expected.txt (GOLDEN_UPDATE=1)
+add_custom_target(update_golden
+    COMMAND ${CMAKE_COMMAND} -E env "GOLDEN_UPDATE=1"
+            $<TARGET_FILE:feedback_analyzer_tests>
+            --gtest_filter=GoldenMasterCapture.*
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Regenerate Domain Golden Master baseline (local only; do not run in CI)"
+    USES_TERMINAL
+)
+
+# Sample data generator: data/feedback_evaluated.csv + data/filtered_feedback.csv
+add_executable(generate_sample_data
+    tools/generate_sample_data.cpp
+    src/cpp/feedback/Constants.cpp
+    src/cpp/feedback/KeywordRegistry.cpp
+    src/cpp/csv/CsvExporter.cpp
+    src/cpp/csv/FileHandler.cpp
+)
+target_include_directories(generate_sample_data PRIVATE ${FA_INCLUDE_DIRS})
+if(WIN32)
+    target_compile_definitions(generate_sample_data PRIVATE
+        _WIN32_WINNT=0x0A00
+        WINVER=0x0A00
+    )
+endif()
