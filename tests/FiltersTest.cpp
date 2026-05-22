@@ -1,6 +1,16 @@
 #include <gtest/gtest.h>
 
-class FiltersTest : public ::testing::Test {};
+#include <vector>
+
+#include "Constants.h"
+#include "Feedback.h"
+#include "Filters.h"
+#include "support/TestHelpers.h"
+
+class FiltersTest : public ::testing::Test {
+protected:
+    void SetUp() override { Constants::init(); }
+};
 
 // Given-When-Then
 // Given: Feedback 1건 text="배송이 너무 늦어요. 화가 납니다."
@@ -17,7 +27,19 @@ TEST_F(FiltersTest, Given_NegativeDeliveryText_When_FilterNegativeAndBaeseong_Th
 // Then:  Filters 결과 = TextAnalyzer 중립 집합 100% 일치
 // test_plan: T-03, AC-1, H-1
 TEST_F(FiltersTest, Given_NeutralText_When_FilterSentimentNeutral_Then_MatchesTextAnalyzerSet) {
-    FAIL() << "RED";  // T-03, AC-1, H-1
+    // Given: Feedback("그냥 그래요. 특별한 감정 없음.")
+    std::vector<Feedback> feedbacks = {
+        Feedback(u8"그냥 그래요. 특별한 감정 없음."),
+    };
+
+    // When: Filters::fil(feedbacks, u8"중립", u8"전체")
+    Filters filters;
+    const auto filtered = filters.fil(feedbacks, u8"중립", u8"전체");
+    const auto expectedNeutral = test_support::getAnalyzerNeutralSubset(feedbacks);
+
+    // Then: 결과 집합 == TextAnalyzer가 동일 입력에 대해 중립으로 분류한 집합
+    EXPECT_EQ(filtered.size(), 1u);
+    EXPECT_TRUE(test_support::feedbackSetsEqualByText(filtered, expectedNeutral));
 }
 
 // Given-When-Then

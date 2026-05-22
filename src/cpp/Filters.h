@@ -8,8 +8,6 @@
 
 class Filters {
 private:
-    static std::map<std::string, std::vector<std::string>> S_KEYWORDS;
-
     static bool containsAny(const std::string& text, const std::vector<std::string>& keywords) {
         for (const auto& kw : keywords) {
             if (text.find(kw) != std::string::npos) return true;
@@ -30,12 +28,10 @@ public:
                 std::string txt = item.getText();
                 std::string currentSentiment = u8"중립";
 
-                if (containsAny(txt, S_KEYWORDS[u8"긍정"])) {
+                if (containsAny(txt, Constants::SENTIMENT_KEYWORDS[u8"긍정"])) {
                     currentSentiment = u8"긍정";
-                } else if (containsAny(txt, S_KEYWORDS[u8"부정"])) {
+                } else if (containsAny(txt, Constants::SENTIMENT_KEYWORDS[u8"부정"])) {
                     currentSentiment = u8"부정";
-                } else if (containsAny(txt, S_KEYWORDS[u8"중립"])) {
-                    currentSentiment = u8"중립";
                 }
 
                 if (currentSentiment == sFilter) {
