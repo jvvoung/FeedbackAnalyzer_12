@@ -45,7 +45,19 @@ TEST_F(TextAnalyzerTest, Given_NeutralText_When_AnalyzeSentiment_Then_Classified
 // Then:  감정=중립 (카테고리≠감정 분리)
 // test_plan: T-07, EX-10
 TEST_F(TextAnalyzerTest, Given_CategoryKeywordOnly_When_AnalyzeSentiment_Then_ClassifiedAsNeutral) {
-    FAIL() << "RED";  // T-07, EX-10
+    // Given: Feedback text="재질이 특이합니다." (품질 카테고리만, 감정 키워드 없음)
+    std::vector<Feedback> feedbacks = {
+        Feedback(u8"재질이 특이합니다."),
+    };
+
+    // When: analyzeSentiment
+    TextAnalyzer analyzer;
+    const auto result = analyzer.sent(feedbacks);
+
+    // Then: 감정=중립 (카테고리≠감정 분리)
+    EXPECT_EQ(result.at(u8"긍정"), 0);
+    EXPECT_EQ(result.at(u8"중립"), 1);
+    EXPECT_EQ(result.at(u8"부정"), 0);
 }
 
 // Given-When-Then
