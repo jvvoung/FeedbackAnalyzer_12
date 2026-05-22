@@ -94,12 +94,10 @@ bool writeEvaluatedCsv(const std::string& path, const std::vector<TrendRow>& row
     return true;
 }
 
-std::vector<TrendRow> fillSentiments(const std::vector<TrendRow>& rows) {
+std::vector<TrendRow> evaluateSentiments(const std::vector<TrendRow>& rows) {
     std::vector<TrendRow> evaluated = rows;
     for (auto& row : evaluated) {
-        if (row.sentiment.empty()) {
-            row.sentiment = SentimentClassifier::classifyWeighted(row.text);
-        }
+        row.sentiment = SentimentClassifier::classifyWeighted(row.text);
     }
     return evaluated;
 }
@@ -120,7 +118,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    const auto evaluated = fillSentiments(rows);
+    const auto evaluated = evaluateSentiments(rows);
     if (!writeEvaluatedCsv(evaluatedPath, evaluated)) {
         std::cerr << "Failed to write evaluated CSV: " << evaluatedPath << '\n';
         return 1;
