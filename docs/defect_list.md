@@ -3,10 +3,10 @@
 | 항목 | 내용 |
 |------|------|
 | **작성일** | 2026-05-22 |
-| **Phase** | Phase 1 — **RED** (failing test 고정 → Green 대기) |
-| **근거 문서** | `docs/analysis.md` §6·§7, `docs/test_plan.md` §4~§5, `docs/PRD.md` §7.1 (AC-1~AC-4), `README.md` §RED 단계 To-Do |
+| **Phase** | Phase 1 — **GREEN** (GTest 스켈레톤 14/14 Pass) |
+| **근거 문서** | `docs/analysis.md` §6·§7, `docs/test_plan.md` §4~§7, `docs/PRD.md` §7.1 (AC-1~AC-5), `README.md` §RED 단계 To-Do |
 | **연결 test_plan ID** | T-03, T-05, T-06 (P0) · T-02, EX-04 (P1) |
-| **ctest 스냅샷** | 2026-05-22 — **31/34 Passed**, **3 Failed** (`build/Testing/Temporary/LastTestsFailed.log`) |
+| **ctest 스냅샷** | 2026-05-22 — **14/14 Passed**, **0 Failed** (`build/ctest_full_verbose.log`) |
 
 ---
 
@@ -14,22 +14,20 @@
 
 | ID | Severity | 기능/레이어 | test_plan ID | Failing Test (RED) | 재현 절차 | 기대값 | 실제값 | 근본 원인 (파일:줄) | 수정 요약 | 상태 |
 |----|----------|-------------|--------------|-------------------|-----------|--------|--------|---------------------|-----------|------|
-| DEF-001 | High (P0) | Filters / sentiment=중립 | T-03, AC-1, H-1, M-7 | `FiltersTest.Given_MixedFeedbacksIncludingNeutral_When_FilterSentimentNeutral_Then_MatchesTextAnalyzerSet` *(canonical: `Given_NeutralText_When_FilterSentimentNeutral_Then_MatchesTextAnalyzerSet`)* | Session에 Feedback 2건: `"그냥 그래요. 특별한 감정 없음."`, `"와우 정말 대단해요."` → `filters.fil(feedbacks, u8"중립", u8"전체")` | Filters 결과 = TextAnalyzer `중립` 집합 (1건, canonical 텍스트만) | 2건 반환 (`"와우…"` 포함 — Filters `S_KEYWORDS["긍정"]`에 `"와우"` 있음, TextAnalyzer `Constants`에는 없음) | `Filters.cpp:5-20` (`S_KEYWORDS` 별도 정의) · `Filters.h:33-38` (중립=전용 키워드 필요) · `TextAnalyzer.h:29-34` (긍/부 미매칭→중립) | `Constants::SENTIMENT_KEYWORDS` 단일 소스 + TextAnalyzer와 동일 판정 순서(긍→부→중립) | **Open** |
-| DEF-002 | High (P0) | CsvParser / POST `/upload` | T-05, AC-2, H-2 | `CsvParserTest.Given_NoTextColumnCsv_When_Parse_Then_ZeroFeedbacks` *(canonical: `Given_CsvWithoutTextColumn_When_Parse_Then_ZeroFeedbacks`)* | CSV `"id,comment\n1,hello\n"` → `CsvParser::parse(csv)` | `text` 컬럼 없음 → 0건 적재 또는 parse 실패; `fields[0]`("1") 사용 **금지** | 1건 적재 (`Feedback("1")`) | `tests/support/CsvParser.cpp:106-110` (text 없을 때 `textIndex=0` fallback) · `main.cpp:303-305` (동일 `fields[0]` 패턴) | 헤더 `text` 인덱스 탐색; 없으면 0건 + error/warning; main 업로드 핸들러도 CsvParser 위임 | **Open** |
-| DEF-003 | High (P0) | Filters / keyword=품질·배송 | T-06, AC-3, H-3 | `FiltersTest.Given_QualityMainKeywordOnlyText_When_FilterKeywordQuality_Then_IncludedInResult` *(canonical: `Given_MainKeywordOnly_When_FilterDelivery_Then_Included`)* | Feedback `"품질이 좋아요."` → `filters.fil(feedbacks, u8"전체", u8"품질")` | 1건 포함 (`main` 키워드 `"품질"` 매칭) | 0건 | `Filters.h:55-56` (`if (subEntry.first == "main") continue;`) | `TextAnalyzer::kw`와 동일 — `CATEGORY_KEYWORDS[cat]["main"]` 매칭 포함 | **Open** |
+| DEF-001 | High (P0) | Filters / sentiment=중립 | T-03, AC-1, H-1, M-7 | `FiltersTest.Given_NeutralText_When_FilterSentimentNeutral_Then_MatchesTextAnalyzerSet` | Session에 Feedback: `"그냥 그래요. 특별한 감정 없음."` → `filters.fil(feedbacks, u8"중립", u8"전체")` | Filters 결과 = TextAnalyzer `중립` 집합 (100% 일치) | ✅ ctest Pass (Test #8) | `Filters.h` — `Constants::SENTIMENT_KEYWORDS` 단일 소스, 긍→부→중립 판정 | `S_KEYWORDS`·`initFilterKeywords()` 제거 | **Fixed** |
+| DEF-002 | High (P0) | CsvParser / POST `/upload` | T-05, AC-2, H-2 | `CsvParserTest.Given_CsvWithoutTextColumn_When_Parse_Then_ZeroFeedbacks` | CSV `"id,comment\n1,hello\n"` → `CsvParser::parse(csv)` | `text` 컬럼 없음 → 0건; `fields[0]` 사용 **금지** | ✅ ctest Pass (Test #4~6) | `tests/support/CsvParser.cpp:105-106` — `textIndex == -1` 시 0건 반환 | `main.cpp` upload도 헤더 `text` 인덱스 탐색 | **Fixed** |
+| DEF-003 | High (P0) | Filters / keyword=배송·품질 | T-06, AC-3, H-3 | `FiltersTest.Given_MainKeywordOnly_When_FilterDelivery_Then_Included` | Feedback `"택배가 빨라요."` → `filters.fil(feedbacks, u8"전체", u8"배송")` | 1건 포함 (`main` 키워드 매칭) | ✅ ctest Pass (Test #10) | `Filters.h` — `CATEGORY_KEYWORDS[cat]["main"]` 매칭 | `main` skip 제거 | **Fixed** |
 | DEF-004 | High (P0) | 빌드·테스트 인프라 | AC-4, H-4 | — *(인프라 결함; P0 기능 테스트는 DEF-001~003)* | 레거시 As-Is: `CMakeLists.txt`에 `enable_testing()`·GTest 타깃 없음, `tests/` 미존재 | Google Test + `ctest` 타깃, Phase 1 UT 실행 가능 | **RED 단계 해소:** `feedback_analyzer_tests` 34건 등록 (`CMakeLists.txt:42-72`); ctest 실행 가능 | 레거시: 테스트 인프라 전무 (`docs/analysis.md` §2.1.4) | FetchContent GTest, `tests/*`, `gtest_discover_tests` — **완료**; AC-4 Green·커버리지 ≥90%는 H-1~H-3 수정 후 | **Fixed** |
 
-### P0 Failing Test 상세 (ctest 2026-05-22)
+### P0 Green 확인 (ctest 2026-05-22)
 
-| 결함 ID | Failing Test | Failure 요약 |
-|---------|--------------|--------------|
-| DEF-001 | `FiltersTest.Given_MixedFeedbacksIncludingNeutral_When_FilterSentimentNeutral_Then_MatchesTextAnalyzerSet` | `filtered.size()=2`, `expectedNeutral.size()=1` — 이중 감성 사전 불일치 |
-| DEF-002 | `CsvParserTest.Given_NoTextColumnCsv_When_Parse_Then_ZeroFeedbacks` | `result.feedbacks.empty()` Expected true, Actual false |
-| DEF-003 | `FiltersTest.Given_QualityMainKeywordOnlyText_When_FilterKeywordQuality_Then_IncludedInResult` | `filtered.size()=0`, Expected 1 |
+| 결함 ID | H-x | Gate Test | ctest |
+|---------|-----|-----------|-------|
+| DEF-001 | H-1 | `FiltersTest.Given_NeutralText_When_FilterSentimentNeutral_Then_MatchesTextAnalyzerSet` | ✅ Pass (#8) |
+| DEF-002 | H-2 | `CsvParserTest.Given_CsvWithoutTextColumn_When_Parse_Then_ZeroFeedbacks` | ✅ Pass (#4) |
+| DEF-003 | H-3 | `FiltersTest.Given_MainKeywordOnly_When_FilterDelivery_Then_Included` | ✅ Pass (#10) |
 
-> **H-3 참고:** `FiltersTest.Given_TaekbaeMainKeywordText_When_FilterKeywordBaeseong_Then_IncludedInResult`("택배가 빨라요.")는 **Pass** — `"택배"`가 `CATEGORY_KEYWORDS["배송"]["type"]` 서브 키워드에도 포함되어 `main` skip을 우회함. H-3 재현은 **품질 main-only** 케이스(DEF-003)가 정확한 failing test이다.
-
-> **H-1 참고:** T-03 canonical 단일 텍스트(`"그냥 그래요…"`)는 `Given_CanonicalNeutralText_When_FilterSentimentNeutral_Then_MatchesSingleAnalyzerNeutral`에서 **Pass**. M-7 이중 사전 불일치는 혼합 입력에서만 드러남(DEF-001).
+> **Green 스냅샷:** `ctest --test-dir build -V --output-on-failure` → **14/14 Pass**, 0 failures. 로그: `build/ctest_full_verbose.log`
 
 ---
 
@@ -61,3 +59,4 @@
 | 일자 | Phase | 변경 내용 |
 |------|-------|-----------|
 | 2026-05-22 | RED | 초版 작성 — H-1~H-4 필수 4건 + M-1/M-2/M-4/M-6/M-7 선택 5건; ctest 3 failing 스냅샷 연결 |
+| 2026-05-22 | GREEN | DEF-001~003 **Fixed** — ctest 14/14 Pass; H-1/H-2/H-3 Green; lcov baseline `coverage_baseline_phase1.info` |
