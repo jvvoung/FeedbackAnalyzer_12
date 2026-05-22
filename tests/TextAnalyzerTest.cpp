@@ -36,7 +36,19 @@ TEST_F(TextAnalyzerTest, Given_EmptyFeedbackList_When_AnalyzeSentiment_Then_AllC
 // Then:  감정=중립 (기본값)
 // test_plan: T-03, AC-1, H-1
 TEST_F(TextAnalyzerTest, Given_NeutralText_When_AnalyzeSentiment_Then_ClassifiedAsNeutral) {
-    FAIL() << "RED";  // T-03, AC-1, H-1
+    // Given: Feedback text="그냥 그래요. 특별한 감정 없음."
+    std::vector<Feedback> feedbacks = {
+        Feedback(u8"그냥 그래요. 특별한 감정 없음."),
+    };
+
+    // When: analyzeSentiment
+    TextAnalyzer analyzer;
+    const auto result = analyzer.sent(feedbacks);
+
+    // Then: 감정=중립 (기본값)
+    EXPECT_EQ(result.at(u8"중립"), 1);
+    EXPECT_EQ(result.at(u8"긍정"), 0);
+    EXPECT_EQ(result.at(u8"부정"), 0);
 }
 
 // Given-When-Then
