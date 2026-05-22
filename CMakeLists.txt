@@ -19,8 +19,6 @@ add_executable(feedback_analyzer
     src/cpp/RouteHandlers.cpp
     src/cpp/Logger.cpp
     src/cpp/FeedbackSession.cpp
-    src/cpp/TextAnalyzer.cpp
-    src/cpp/UIComponents.cpp
 )
 
 target_include_directories(feedback_analyzer PRIVATE src/cpp)
@@ -60,7 +58,6 @@ add_executable(feedback_analyzer_tests
     src/cpp/CsvParser.cpp
     src/cpp/Constants.cpp
     src/cpp/KeywordRegistry.cpp
-    src/cpp/TextAnalyzer.cpp
 )
 
 target_include_directories(feedback_analyzer_tests PRIVATE

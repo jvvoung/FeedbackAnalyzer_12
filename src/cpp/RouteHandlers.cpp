@@ -2,7 +2,6 @@
 
 #include "AnalyzeUseCase.h"
 #include "AppMessages.h"
-#include "AppState.h"
 #include "CsvExporter.h"
 #include "CsvParser.h"
 #include "FilterUseCase.h"
@@ -104,7 +103,7 @@ void RouteHandlers::handlePostFilter(const httplib::Request& req, httplib::Respo
 }
 
 void RouteHandlers::handleGetDownload(const httplib::Request&, httplib::Response& res) {
-    const auto& filtered = AppState::lastFilteredFeedbacksConst();
+    const auto& filtered = FeedbackSession::getLastFiltered();
     if (filtered.empty()) {
         Logger::logWarning(AppMessages::noDownloadResults());
         setHtmlResponse(res, {"", AppMessages::noDownloadResults(), "", {}, {}});

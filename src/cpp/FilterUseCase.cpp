@@ -1,5 +1,6 @@
 #include "FilterUseCase.h"
 
+#include "FeedbackSession.h"
 #include "Logger.h"
 
 FilterResult FilterUseCase::filterAll(const std::vector<Feedback>& feedbacks,
@@ -18,7 +19,7 @@ FilterResult FilterUseCase::filterAll(const std::vector<Feedback>& feedbacks,
         return result;
     }
 
-    AppState::setLastFilteredFeedbacks(result.filtered);
+    FeedbackSession::setLastFiltered(result.filtered);
     result.sentimentResults = analyzer_.analyzeSentiment(result.filtered);
     result.keywordResults = analyzer_.analyzeKeywords(result.filtered);
     Logger::logInfo(u8"필터링 결과: " + std::to_string(result.filtered.size()) + u8"개의 피드백");

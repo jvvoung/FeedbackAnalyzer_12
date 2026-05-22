@@ -1,42 +1,38 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <iostream>
 #include "Feedback.h"
 #include "FeedbackClassifier.h"
+#include "FilterConstants.h"
 
 class Filters {
 public:
     std::vector<Feedback> filter(const std::vector<Feedback>& dataList,
-                                 const std::string& sFilter,
-                                 const std::string& kFilter) {
-        std::vector<Feedback> tmpFiltered;
+                                 const std::string& sentimentFilter,
+                                 const std::string& keywordFilter) {
+        std::vector<Feedback> sentimentFiltered;
 
-        if (sFilter != u8"전체") {
+        if (sentimentFilter != FilterConstants::kAllSentinel) {
             for (const auto& item : dataList) {
-                if (FeedbackClassifier::classifySentiment(item.getText()) == sFilter) {
-                    tmpFiltered.push_back(item);
+                if (FeedbackClassifier::classifySentiment(item.getText()) == sentimentFilter) {
+                    sentimentFiltered.push_back(item);
                 }
             }
         } else {
-            tmpFiltered = dataList;
+            sentimentFiltered = dataList;
         }
 
-        std::vector<Feedback> finalFiltered;
-        if (kFilter != u8"전체") {
-            for (const auto& item : tmpFiltered) {
-                if (FeedbackClassifier::matchCategory(item.getText(), kFilter)) {
-                    finalFiltered.push_back(item);
+        std::vector<Feedback> keywordFiltered;
+        if (keywordFilter != FilterConstants::kAllSentinel) {
+            for (const auto& item : sentimentFiltered) {
+                if (FeedbackClassifier::matchCategory(item.getText(), keywordFilter)) {
+                    keywordFiltered.push_back(item);
                 }
             }
         } else {
-            finalFiltered = tmpFiltered;
+            keywordFiltered = sentimentFiltered;
         }
 
-        for (const auto& i : finalFiltered) {
-            std::cout << i.getText() << std::endl;
-        }
-
-        return finalFiltered;
+        return keywordFiltered;
     }
 };

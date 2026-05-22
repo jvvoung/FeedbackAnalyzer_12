@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "UIComponents.h"
+#include "KeywordRegistry.h"
 
 namespace {
 
@@ -95,7 +95,7 @@ std::string HtmlPageRenderer::render(const PageViewModel& viewModel) {
         </form>
     </div>)";
 
-    const auto& cats = UIComponents::getCategories();
+    const auto& categories = KeywordRegistry::categoryNames();
     html << R"(
     <div class="section">
         <h3>)" << u8"피드백 분석" << R"(</h3>
@@ -113,8 +113,8 @@ std::string HtmlPageRenderer::render(const PageViewModel& viewModel) {
                 <label for="keyword">)" << u8"키워드 필터:" << R"(</label>
                 <select id="keyword" name="keyword">
                     <option value=")" << u8"전체" << R"(">)" << u8"전체" << R"(</option>)";
-    for (const auto& cat : cats) {
-        html << R"(<option value=")" << cat << R"(">)" << cat << "</option>";
+    for (const auto& category : categories) {
+        html << R"(<option value=")" << category << R"(">)" << category << "</option>";
     }
     html << R"(
                 </select>
