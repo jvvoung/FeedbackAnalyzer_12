@@ -46,6 +46,7 @@ add_executable(feedback_analyzer_tests
     tests/CsvParserTest.cpp
     tests/FeedbackTest.cpp
     tests/KeywordUtilsTest.cpp
+    tests/GoldenMasterTest.cpp
     tests/support/CsvParser.cpp
     src/cpp/Constants.cpp
     src/cpp/TextAnalyzer.cpp
@@ -55,6 +56,10 @@ target_include_directories(feedback_analyzer_tests PRIVATE
     src/cpp
     tests
     tests/support
+)
+
+target_compile_definitions(feedback_analyzer_tests PRIVATE
+    GOLDEN_DIR="${CMAKE_SOURCE_DIR}/tests/golden"
 )
 
 target_link_libraries(feedback_analyzer_tests PRIVATE GTest::gtest_main)

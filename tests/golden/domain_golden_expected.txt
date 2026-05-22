@@ -1,0 +1,20 @@
+=== GM-D-01 ===
+sentiment|긍정|0
+sentiment|부정|1
+sentiment|중립|0
+keyword|가격|0
+keyword|배송|1
+keyword|사용성|0
+keyword|서비스|0
+keyword|품질|0
+=== GM-D-02 ===
+count|1
+text|그냥 그래요. 특별한 감정 없음.
+=== GM-D-03 ===
+count|1
+text|택배가 빨라요.
+=== GM-D-04 ===
+count|3
+text|좋아요 만족합니다.
+text|배송이 너무 늦어요.
+text|그냥 그래요. 특별한 감정 없음.
