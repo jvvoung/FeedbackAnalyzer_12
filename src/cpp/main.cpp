@@ -319,6 +319,12 @@ int main() {
                             feedbacks.push_back(Feedback(fields[textIndex]));
                         }
                     }
+                    if (textIndex == static_cast<std::size_t>(-1)) {
+                        Logger::logError(u8"CSV에 text 컬럼이 없습니다.");
+                        std::string html = renderPage("", "", u8"파일 업로드 중 오류가 발생했습니다.", {}, {}, feedbacks);
+                        res.set_content(html, "text/html; charset=UTF-8");
+                        return;
+                    }
                     Logger::logInfo(u8"파일이 성공적으로 업로드되었습니다.");
                 }
             }
