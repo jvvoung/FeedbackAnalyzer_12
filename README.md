@@ -33,7 +33,7 @@
 
 ### 이 프로젝트가 해결하는 문제
 
-Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리케이션이다. 현재 코드베이스에는 아래 문제가 존재하며, 본 프로젝트는 이를 식별·개선하는 학습 경험을 제공한다. (근거: `docs/PRD.md` §1.2, `docs/analysis.md` §6)
+Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리케이션이다. 현재 코드베이스에는 아래 문제가 존재하며, 본 프로젝트는 이를 식별·개선하는 학습 경험을 제공한다. (근거: `docs/PRD.md` §1.2, `docs/analysis.md` §1~§3)
 
 | 문제 | 설명 |
 |------|------|
@@ -49,7 +49,7 @@ Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리�
 | **SRP (단일 책임 원칙)** | Controller / Service / View / State 계층 분리 | `docs/PRD.md` §4.2 |
 | **관심사 분리** | HTML·라우트·비즈니스 로직·파일 I/O 분리 | `project_purpose.md` §1.3 |
 | **TDD** | Given-When-Then 단위 테스트 → Green 상태에서 리팩토링 | `.cursorrules` §5 |
-| **점진적 리팩토링** | Extract Function/Class, 최소 diff, Phase별 단계 진행 | `docs/PRD.md` §1.3 G-4, `docs/analysis.md` §8 |
+| **점진적 리팩토링** | Extract Function/Class, 최소 diff, Phase별 단계 진행 | `docs/PRD.md` §1.3 G-4, `docs/analysis.md` 부록 C |
 
 **측정 가능 목표:** HTTP 5엔드포인트 계약 유지, P0 버그 회귀 0건, Service 계층 커버리지 ≥ 90%, `main.cpp` ≤ 200줄 (Phase 2 이후). (`docs/PRD.md` §1.3)
 
@@ -63,7 +63,7 @@ Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리�
 | **Phase 4** | Logger UI·download·gitignore | level별 alert, 다운로드 대상 명확화 |
 | **Phase 5** (선택) | Trend·File DB | `test_feedback_trend.csv` 시각화, 감정 키워드 File DB |
 
-상세 분석: [`docs/analysis.md`](docs/analysis.md) · 요구사항 명세: [`docs/PRD.md`](docs/PRD.md)
+상세 분석: [`docs/analysis.md`](docs/analysis.md) (v2.0 QA·코드 스멜 통합) · 테스트 계획: [`docs/test_plan.md`](docs/test_plan.md) · 요구사항: [`docs/PRD.md`](docs/PRD.md)
 
 ---
 
@@ -114,7 +114,7 @@ build\feedback_analyzer.exe
 
 ## HTTP API 개요
 
-근거: `docs/PRD.md` §3.2 F-01~F-05, `docs/analysis.md` §4.1
+근거: `docs/PRD.md` §3.2 F-01~F-05, `docs/analysis.md` 부록 B.4
 
 | Method | Path | 역할 | Content-Type |
 |--------|------|------|--------------|
@@ -324,7 +324,7 @@ flowchart TB
 
 ## 프로젝트 구조
 
-근거: `docs/analysis.md` §3 (`tests/`는 Phase 1 목표)
+근거: `docs/analysis.md` 부록 B.3 (`tests/`는 Phase 1 목표)
 
 ```
 FeedbackAnalyzer_12/
@@ -334,7 +334,8 @@ FeedbackAnalyzer_12/
 ├── .cursorrules
 ├── docs/
 │   ├── PRD.md              # 제품 요구사항 명세
-│   └── analysis.md         # 코드베이스 분석·Phase 로드맵
+│   ├── analysis.md         # QA·코드 스멜 통합 분석 (v2.0)
+│   └── test_plan.md        # TDD 테스트 계획·AC 매핑
 ├── tests/                  # (Phase 1 목표) Google Test
 │   ├── TextAnalyzerTest.cpp
 │   ├── FiltersTest.cpp
@@ -360,11 +361,11 @@ FeedbackAnalyzer_12/
 
 | 항목 | 상태 |
 |------|------|
-| Google Test | **미구성** (`docs/analysis.md` §5.3) |
+| Google Test | **미구성** (`docs/analysis.md` §2.1.4, 부록 B.6) |
 | CMake `enable_testing()` | **미구성** |
 | 단위 테스트 파일 | **0건** |
 
-→ **Phase 1 목표:** GTest + CMake 테스트 타깃 추가 후 P0 버그 수정 (`docs/analysis.md` §8 Phase 1)
+→ **Phase 1 목표:** GTest + CMake 테스트 타깃 추가 후 P0 버그 수정 (`docs/analysis.md` 부록 C Phase 1, `docs/test_plan.md` §8)
 
 ### 목표 실행 방법 (Phase 1 이후)
 
@@ -436,7 +437,7 @@ ctest --test-dir build --output-on-failure
 | 항목 | 방식 | 근거 |
 |------|------|------|
 | 키워드·감정 상수 | `Constants::init()` 하드코딩 | `docs/PRD.md` §5.1 |
-| application.yml | **없음** | `docs/analysis.md` §5.4 |
+| application.yml | **없음** | `docs/analysis.md` 부록 B.2 |
 | 서버 포트 | `8080` 소스 하드코딩 | `docs/PRD.md` §3.3 C-05 |
 
 ### 세션·상태
@@ -509,16 +510,16 @@ text
 
 ## 알려진 이슈 (Known Issues)
 
-근거: `docs/analysis.md` §6.1 — **Phase 1에서 수정 예정**
+근거: `docs/analysis.md` §2.1 — **Phase 1에서 수정 예정**. 재현 시나리오: [`docs/analysis.md` §2.1](docs/analysis.md#21-p0--반드시-잡아야-할-기능-결함), [`docs/test_plan.md` §2](docs/test_plan.md#2-대표-샘플-예제--ac-1--h-1-중립-필터-일치)
 
 | ID | 문제 요약 | 영향 | 심각도 |
 |----|-----------|------|--------|
-| **H-1** | "중립" 필터: TextAnalyzer는 긍정/부정 미매칭 시 중립, Filters는 중립 키워드 필요 — **결과 불일치** | 기능 오류 | **High** |
+| **H-1** | "중립" 필터: TextAnalyzer는 긍정/부정 미매칭 시 중립, Filters는 중립 키워드 필요 — **결과 불일치** (예: `괜찮아요`) | 기능 오류 | **High** |
 | **H-2** | CSV 업로드: README `text` 컬럼 명세와 달리 `fields[0]`만 사용 | 기능 오류 | **High** |
-| **H-3** | 키워드 필터: `main` 키워드 skip, 집계는 `main`만 사용 — **동작 불일치** | 기능 오류 | **High** |
+| **H-3** | 키워드 필터: `main` 키워드 skip, 집계는 `main`만 사용 — **동작 불일치** (예: `품질이 좋습니다`) | 기능 오류 | **High** |
 | **H-4** | 테스트 인프라 전무 (Google Test 미구성) | 회귀 방지 불가 | **High** |
 
-기타 Medium 이슈(God Function, 전역 상태, Logger UI 미연동 등): [`docs/analysis.md`](docs/analysis.md) §6.2 참조.
+기타 Medium·Low 이슈(God Function, 전역 상태, Logger UI 미연동 등): [`docs/analysis.md`](docs/analysis.md) §3 참조.
 
 ---
 
@@ -592,7 +593,8 @@ text
 | 문서 | 용도 |
 |------|------|
 | [`docs/PRD.md`](docs/PRD.md) | 기능·계약·인수 기준 |
-| [`docs/analysis.md`](docs/analysis.md) | 현황 분석·Phase 로드맵 |
+| [`docs/analysis.md`](docs/analysis.md) | QA·코드 스멜 통합 분석·Phase 로드맵 (v2.0) |
+| [`docs/test_plan.md`](docs/test_plan.md) | TDD 테스트 계획·Given-When-Then·AC 매핑 |
 | [`project_purpose.md`](project_purpose.md) | 학습 목표·코드 스멜 |
 | [`.cursorrules`](.cursorrules) | Cursor AI 작업 규칙 |
 

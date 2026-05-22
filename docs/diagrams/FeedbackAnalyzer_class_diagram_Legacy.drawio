@@ -1,0 +1,159 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.8 Chrome/140.0.7339.240 Electron/38.4.0 Safari/537.36" version="28.2.8">
+  <diagram id="FeedbackAnalyzerClassDiagram" name="Class Diagram">
+    <mxGraphModel dx="1763" dy="1041" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="1500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Feedback Analyzer — Legacy Class Diagram&#xa;src/cpp/ (tests/ 제외) · 상속 없음 · 전역/static 다수" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="500" y="20" width="1000" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_app" value="Application (main.cpp)" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="360" y="90" width="920" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="main_module" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;&amp;laquo;module&amp;raquo; main&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;b&gt;static globals&lt;/b&gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;- fil_data: vector&amp;lt;Feedback&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;- textAnalyzer: TextAnalyzer&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;- filters: Filters&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;- fileHandler: FileHandler &amp;lt;unused&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;b&gt;free functions&lt;/b&gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;+ urlDecode(), parseForm(), parseCsvLine()&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;+ escapeHtml(), getCurrentTimestamp()&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;+ renderPage(): string&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;b&gt;HTTP routes (httplib::Server)&lt;/b&gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;GET /, POST /analyze, /upload, /filter, GET /download&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;spacingTop=4;spacingLeft=4;" parent="pkg_app" vertex="1">
+          <mxGeometry x="40" width="660" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="fil_data_note" value="fil_data&#xa;(main static)&#xa;→ GET /download" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;align=center;fontSize=11;" parent="pkg_app" vertex="1">
+          <mxGeometry x="720" y="60" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_ext" value="External" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=14;startSize=36;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1320" y="90" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="httplib" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;&amp;laquo;external&amp;raquo; httplib&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ Server&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ Request&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ Response&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#eeeeee;strokeColor=#666666;fontSize=12;" parent="pkg_ext" vertex="1">
+          <mxGeometry x="30" width="250" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_domain" value="Domain" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="40" y="440" width="340" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="Feedback" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Feedback&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- text: string&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ Feedback(text: string)&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ getText(): const string&amp;amp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" parent="pkg_domain" vertex="1">
+          <mxGeometry x="30" width="310" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_state" value="State (전역 mutable)" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="40" y="690" width="400" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="Session" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Session&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} currentFeedbacks: vector&amp;lt;Feedback&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} internalData: map (unused)&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} filterOptions: map (unused)&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} initSessionStateUgly(): void&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} getCurrentFeedbacks(): vector&amp;lt;Feedback&amp;gt;&amp;amp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} updateCurrentFeedbacks(...): void&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} getOldDataFromSession(key): vector&amp;lt;Feedback&amp;gt;&amp;amp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#9673a6;fontSize=12;" parent="pkg_state" vertex="1">
+          <mxGeometry x="30" width="370" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_service" value="Service (비즈니스 로직)" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="480" y="440" width="560" height="620" as="geometry" />
+        </mxCell>
+        <mxCell id="TextAnalyzer" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;TextAnalyzer&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} globalSent: map&amp;lt;string,int&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} globalKw: map&amp;lt;string,int&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} containsAny(text, keywords): bool&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ sent(feedbacks): map&amp;lt;string,int&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ kw(feedbacks): map&amp;lt;string,int&amp;gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" parent="pkg_service" vertex="1">
+          <mxGeometry x="30" width="530" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="Filters" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Filters&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} S_KEYWORDS: map (별도 감성 사전)&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} containsAny(text, keywords): bool&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} initFilterKeywords(): void&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ fil(dataList, sFilter, kFilter): vector&amp;lt;Feedback&amp;gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" parent="pkg_service" vertex="1">
+          <mxGeometry x="30" y="250" width="530" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_config" value="Configuration" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="440" width="360" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="Constants" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Constants&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} SENTIMENT_KEYWORDS: map&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} CATEGORY_KEYWORDS: map&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} init(): void&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" parent="pkg_config" vertex="1">
+          <mxGeometry x="30" width="330" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="UIComponents" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;UIComponents&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} CATS: vector&amp;lt;string&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} getCategories(): const vector&amp;lt;string&amp;gt;&amp;amp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" parent="pkg_config" vertex="1">
+          <mxGeometry x="30" y="180" width="330" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_infra" value="Infrastructure" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="860" width="360" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="Logger" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Logger&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} debugMode: bool&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} logInfo/Warning/Error/Debug(...)&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} setDebugMode(bool): void&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#b85450;fontSize=12;" parent="pkg_infra" vertex="1">
+          <mxGeometry x="30" width="330" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="FileHandler" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;FileHandler&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&amp;laquo;stub / dead code&amp;raquo;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ saveResult(data): void&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ save(data): void&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#b85450;dashed=1;fontSize=12;" parent="pkg_infra" vertex="1">
+          <mxGeometry x="30" y="160" width="330" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" value="&lt;b&gt;범례&lt;/b&gt;&lt;hr&gt;——&amp;gt; 의존 (uses / «include»)&lt;br&gt;◆——&amp;gt; Composition (contains)&lt;br&gt;점선 박스 = 외부·미사용&lt;hr&gt;&lt;b&gt;구조 특징&lt;/b&gt;&lt;br&gt;• C++ 클래스 8개 + main 모듈&lt;br&gt;• 상속/인터페이스 없음&lt;br&gt;• containsAny() TextAnalyzer·Filters 중복&lt;br&gt;• 감성 키워드 Constants vs Filters 이중 관리&lt;br&gt;• CSV/HTML/라우팅은 main.cpp에 집중 (God Module)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffffcc;strokeColor=#999999;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="40" y="1120" width="360" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="dir_tree" value="&lt;b&gt;src/cpp/ 파일&lt;/b&gt;&lt;hr&gt;main.cpp&lt;br&gt;Feedback.h&lt;br&gt;TextAnalyzer.h / .cpp&lt;br&gt;Filters.h / .cpp&lt;br&gt;Constants.h / .cpp&lt;br&gt;Session.h / .cpp&lt;br&gt;UIComponents.h / .cpp&lt;br&gt;Logger.h / .cpp&lt;br&gt;FileHandler.h&lt;br&gt;httplib.h (external)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="440" y="1110" width="240" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_httplib" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="httplib" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_ta" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="TextAnalyzer" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_f" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="Filters" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1050" y="875" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_main_s" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="Session" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="420" />
+              <mxPoint x="410" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_main_c" value="init()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="Constants" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_ui" value="renderPage" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="UIComponents" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_log" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="Logger" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_fh" value="unused" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#999999;fontColor=#999999;entryX=0.665;entryY=0.978;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" target="Logger" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1280" y="285" as="sourcePoint" />
+            <mxPoint x="1600" y="1050" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_main_fb" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_fildata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="main_module" target="fil_data_note" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fildata_fb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="fil_data_note" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1240" y="170" />
+              <mxPoint x="1240" y="420" />
+              <mxPoint x="210" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_session_fb" value="1..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=1;" parent="1" source="Session" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ta_fb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="TextAnalyzer" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ta_c" value="SENTIMENT_KEYWORDS&#xa;CATEGORY_KEYWORDS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="TextAnalyzer" target="Constants" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_f_fb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="Filters" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_f_c" value="CATEGORY_KEYWORDS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="Filters" target="Constants" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1530" y="840" />
+              <mxPoint x="1530" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_f_sk" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#b85450;" parent="1" source="Filters" target="s_keywords_note" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fh_fb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeColor=#999999;" parent="1" source="FileHandler" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1260" y="1040" />
+              <mxPoint x="1260" y="420" />
+              <mxPoint x="210" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s_keywords_note" value="S_KEYWORDS&#xa;(initFilterKeywords)&#xa;↔ Constants 중복" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f8cecc;strokeColor=#b85450;align=center;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="730" y="1110" width="160" height="55" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

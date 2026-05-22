@@ -25,3 +25,48 @@ if(WIN32)
     )
     target_link_libraries(feedback_analyzer PRIVATE ws2_32)
 endif()
+
+# --- Google Test (Phase 1 RED) ---
+# Expected RED failures (ctest not fully Green until GREEN phase):
+#   T-05/H-2: CsvParserTest.Given_NoTextColumnCsv_When_Parse_Then_ZeroFeedbacks
+#   T-03/H-1: FiltersTest.Given_MixedFeedbacksIncludingNeutral_When_FilterSentimentNeutral_Then_MatchesTextAnalyzerSet
+#   T-06/H-3: FiltersTest.Given_QualityMainKeywordOnlyText_When_FilterKeywordQuality_Then_IncludedInResult
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+add_executable(feedback_analyzer_tests
+    tests/TextAnalyzerTest.cpp
+    tests/FiltersTest.cpp
+    tests/CsvParserTest.cpp
+    tests/FeedbackTest.cpp
+    tests/KeywordUtilsTest.cpp
+    tests/support/CsvParser.cpp
+    src/cpp/Constants.cpp
+    src/cpp/Filters.cpp
+    src/cpp/TextAnalyzer.cpp
+)
+
+target_include_directories(feedback_analyzer_tests PRIVATE
+    src/cpp
+    tests
+    tests/support
+)
+
+target_link_libraries(feedback_analyzer_tests PRIVATE GTest::gtest_main)
+
+if(WIN32)
+    target_compile_definitions(feedback_analyzer_tests PRIVATE
+        _WIN32_WINNT=0x0A00
+        WINVER=0x0A00
+    )
+endif()
+
+include(GoogleTest)
+gtest_discover_tests(feedback_analyzer_tests)
