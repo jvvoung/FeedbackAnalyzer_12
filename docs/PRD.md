@@ -210,7 +210,7 @@
 | 규칙 | 내용 |
 |------|------|
 | 감정 단일 소스 | `Constants::SENTIMENT_KEYWORDS`만 사용; `Filters::S_KEYWORDS`·`Filters::initFilterKeywords()` 제거 | `docs/analysis.md` §3.2 (M-7) |
-| 감정 판정 순서 | 긍정 키워드 매칭 → 부정 키워드 매칭 → 그 외 **중립** (TextAnalyzer·Filters 동일) | `docs/analysis.md` §2.1.2 (H-1) |
+| 감정 판정 (가중치 스코어링) | `Constants::SENTIMENT_KEYWORDS[u8"긍정"]`·`[u8"부정"]` 키워드별 등장 건수 집계 → `positive`/`negative` 비교: `positive > negative` → **긍정**, `negative > positive` → **부정**, 동점(0 포함) → **중립** (`SentimentClassifier::classifyWeighted`, TextAnalyzer·Filters 동일) | `docs/analysis.md` §2.1.2 (H-1), 연습 #4 |
 | 키워드 카테고리 매칭 | `Constants::CATEGORY_KEYWORDS[카테고리]["main"]` 키워드 포함 시 해당 카테고리 매칭 (집계·필터 동일 규칙) | `docs/analysis.md` §2.1.1 (H-3) |
 | quality 혼동 금지 | `서비스`/`품질` 카테고리 키워드와 감정 3분류를 혼동하지 않음 (`.cursorrules` §3) |
 

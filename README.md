@@ -414,7 +414,7 @@ ctest --test-dir build --output-on-failure
 - [x] TC-B-04: T-05 / AC-2 / H-2 — CSV `id,comment\n1,hello` → `text` 컬럼 파싱, fields[0] 사용 금지
 - [x] TC-B-05: T-06 / AC-3 / H-3 — `text="택배가 빨라요."` → filter keyword=배송 → 1건 포함 (main 키워드)
 - [x] TC-B-06: T-07 — `text="품질이 별로예요."` → analyzeSentiment=중립 (카테고리≠감정 분리)
-- [x] TC-B-07: EX-09 — 긍정·부정 키워드 동시 포함 → 긍정 우선 (판정 순서 F-06)
+- [x] TC-B-07: EX-09 — 긍정·부정 키워드 동시 포함(동점) → **중립** (`SentimentClassifier::classifyWeighted`, F-06 가중치 규칙)
 - [x] TC-B-08: Filters·TextAnalyzer — `Constants::SENTIMENT_KEYWORDS` 단일 소스 사용 (EX-01, M-7)
 
 ### 커버리지 목표

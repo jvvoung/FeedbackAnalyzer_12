@@ -26,9 +26,7 @@ std::string escapeCsvField(const std::string& field) {
     return escaped;
 }
 
-}  // namespace
-
-std::string CsvExporter::exportFilteredFeedbacks(const std::vector<Feedback>& feedbacks) {
+std::string buildCsvBody(const std::vector<Feedback>& feedbacks) {
     std::ostringstream csv;
     csv << CsvConstants::kUtf8Bom;
     csv << CsvConstants::kTextColumnHeader;
@@ -36,6 +34,12 @@ std::string CsvExporter::exportFilteredFeedbacks(const std::vector<Feedback>& fe
         csv << escapeCsvField(feedback.getText()) << "\n";
     }
     return csv.str();
+}
+
+}  // namespace
+
+std::string CsvExporter::exportFilteredFeedbacks(const std::vector<Feedback>& feedbacks) {
+    return buildCsvBody(feedbacks);
 }
 
 std::string CsvExporter::contentType() {

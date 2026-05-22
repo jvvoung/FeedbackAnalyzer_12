@@ -4,24 +4,43 @@ project(FeedbackAnalyzer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(feedback_analyzer
-    src/cpp/main.cpp
-    src/cpp/Constants.cpp
-    src/cpp/KeywordRegistry.cpp
-    src/cpp/AnalyzeUseCase.cpp
-    src/cpp/FilterUseCase.cpp
-    src/cpp/AppState.cpp
-    src/cpp/FormParser.cpp
-    src/cpp/CsvParser.cpp
-    src/cpp/AppMessages.cpp
-    src/cpp/HtmlPageRenderer.cpp
-    src/cpp/CsvExporter.cpp
-    src/cpp/RouteHandlers.cpp
-    src/cpp/Logger.cpp
-    src/cpp/FeedbackSession.cpp
+option(ENABLE_COVERAGE "Enable gcov/lcov instrumentation for feedback_analyzer_tests (MinGW/GCC only)" OFF)
+if(ENABLE_COVERAGE AND MSVC)
+    message(FATAL_ERROR
+        "ENABLE_COVERAGE requires MinGW or GCC. "
+        "MSVC cannot compile u8\"...\" literals with --coverage flags.")
+endif()
+
+set(FA_SRC_ROOT ${CMAKE_SOURCE_DIR}/src/cpp)
+set(FA_INCLUDE_DIRS
+    ${FA_SRC_ROOT}
+    ${FA_SRC_ROOT}/app
+    ${FA_SRC_ROOT}/app/http
+    ${FA_SRC_ROOT}/app/ui
+    ${FA_SRC_ROOT}/app/state
+    ${FA_SRC_ROOT}/app/usecase
+    ${FA_SRC_ROOT}/csv
+    ${FA_SRC_ROOT}/feedback
 )
 
-target_include_directories(feedback_analyzer PRIVATE src/cpp)
+add_executable(feedback_analyzer
+    src/cpp/app/main.cpp
+    src/cpp/feedback/Constants.cpp
+    src/cpp/feedback/KeywordRegistry.cpp
+    src/cpp/app/usecase/AnalyzeUseCase.cpp
+    src/cpp/app/usecase/FilterUseCase.cpp
+    src/cpp/app/state/AppState.cpp
+    src/cpp/app/http/FormParser.cpp
+    src/cpp/csv/CsvParser.cpp
+    src/cpp/app/ui/AppMessages.cpp
+    src/cpp/app/ui/HtmlPageRenderer.cpp
+    src/cpp/csv/CsvExporter.cpp
+    src/cpp/app/http/RouteHandlers.cpp
+    src/cpp/app/state/Logger.cpp
+    src/cpp/app/state/FeedbackSession.cpp
+)
+
+target_include_directories(feedback_analyzer PRIVATE ${FA_INCLUDE_DIRS})
 
 # Windows: httplib mmap uses CreateFile2 / CreateFileMappingFromApp (Win8+).
 # MinGW defaults to older WINVER unless raised here.
@@ -49,19 +68,34 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(feedback_analyzer_tests
+    tests/SentimentClassifierTest.cpp
     tests/TextAnalyzerTest.cpp
     tests/FiltersTest.cpp
     tests/CsvParserTest.cpp
     tests/FeedbackTest.cpp
     tests/KeywordUtilsTest.cpp
     tests/GoldenMasterTest.cpp
-    src/cpp/CsvParser.cpp
-    src/cpp/Constants.cpp
-    src/cpp/KeywordRegistry.cpp
+    tests/FileHandlerTest.cpp
+    tests/BoundaryUseCaseTest.cpp
+    tests/RouteHandlersBoundaryTest.cpp
+    src/cpp/csv/CsvParser.cpp
+    src/cpp/feedback/Constants.cpp
+    src/cpp/feedback/KeywordRegistry.cpp
+    src/cpp/csv/CsvExporter.cpp
+    src/cpp/csv/FileHandler.cpp
+    src/cpp/app/usecase/AnalyzeUseCase.cpp
+    src/cpp/app/usecase/FilterUseCase.cpp
+    src/cpp/app/state/AppState.cpp
+    src/cpp/app/state/FeedbackSession.cpp
+    src/cpp/app/ui/AppMessages.cpp
+    src/cpp/app/http/RouteHandlers.cpp
+    src/cpp/app/ui/HtmlPageRenderer.cpp
+    src/cpp/app/http/FormParser.cpp
+    src/cpp/app/state/Logger.cpp
 )
 
 target_include_directories(feedback_analyzer_tests PRIVATE
-    src/cpp
+    ${FA_INCLUDE_DIRS}
     tests
     tests/support
 )
@@ -72,11 +106,17 @@ target_compile_definitions(feedback_analyzer_tests PRIVATE
 
 target_link_libraries(feedback_analyzer_tests PRIVATE GTest::gtest_main)
 
+if(ENABLE_COVERAGE)
+    target_compile_options(feedback_analyzer_tests PRIVATE --coverage -O0 -g)
+    target_link_options(feedback_analyzer_tests PRIVATE --coverage)
+endif()
+
 if(WIN32)
     target_compile_definitions(feedback_analyzer_tests PRIVATE
         _WIN32_WINNT=0x0A00
         WINVER=0x0A00
     )
+    target_link_libraries(feedback_analyzer_tests PRIVATE ws2_32)
 endif()
 
 include(GoogleTest)
@@ -89,3 +129,29 @@ set_tests_properties(GoldenMaster PROPERTIES
     LABELS "golden;domain"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
+
+# Local-only: regenerate tests/golden/domain_golden_expected.txt (GOLDEN_UPDATE=1)
+add_custom_target(update_golden
+    COMMAND ${CMAKE_COMMAND} -E env "GOLDEN_UPDATE=1"
+            $<TARGET_FILE:feedback_analyzer_tests>
+            --gtest_filter=GoldenMasterCapture.*
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Regenerate Domain Golden Master baseline (local only; do not run in CI)"
+    USES_TERMINAL
+)
+
+# Sample data generator: data/feedback_evaluated.csv + data/filtered_feedback.csv
+add_executable(generate_sample_data
+    tools/generate_sample_data.cpp
+    src/cpp/feedback/Constants.cpp
+    src/cpp/feedback/KeywordRegistry.cpp
+    src/cpp/csv/CsvExporter.cpp
+    src/cpp/csv/FileHandler.cpp
+)
+target_include_directories(generate_sample_data PRIVATE ${FA_INCLUDE_DIRS})
+if(WIN32)
+    target_compile_definitions(generate_sample_data PRIVATE
+        _WIN32_WINNT=0x0A00
+        WINVER=0x0A00
+    )
+endif()

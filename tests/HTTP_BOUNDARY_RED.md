@@ -2,9 +2,9 @@
 
 | 항목 | 내용 |
 |------|------|
-| Phase | 1 RED only — 수동·스모크 검증 스펙 (GTest 미포함) |
-| 레거시 | `src/cpp/main.cpp` 등 **수정 금지** — As-Is 동작 기준 |
-| 검증 | 서버 기동 후 `curl`/브라우저 또는 Phase 2+ in-process 스모크 |
+| Phase | 1 — **GTest + in-process HTTP** (`RouteHandlersBoundaryTest`) |
+| 레거시 | As-Is 스펙 보존; 자동화는 `tests/BoundaryUseCaseTest.cpp`, `tests/RouteHandlersBoundaryTest.cpp` |
+| 검증 | `ctest --test-dir build` + (선택) 서버 기동 후 curl/브라우저 |
 | 근거 | `docs/test_plan.md` §4.2, `docs/PRD.md` §3.2·부록 A, `docs/analysis.md` §6 |
 
 ---
