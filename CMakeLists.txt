@@ -7,10 +7,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(feedback_analyzer
     src/cpp/main.cpp
     src/cpp/Constants.cpp
+    src/cpp/KeywordRegistry.cpp
+    src/cpp/AnalyzeUseCase.cpp
+    src/cpp/FilterUseCase.cpp
+    src/cpp/AppState.cpp
+    src/cpp/FormParser.cpp
+    src/cpp/CsvParser.cpp
+    src/cpp/AppMessages.cpp
+    src/cpp/HtmlPageRenderer.cpp
+    src/cpp/CsvExporter.cpp
+    src/cpp/RouteHandlers.cpp
     src/cpp/Logger.cpp
-    src/cpp/Session.cpp
-    src/cpp/TextAnalyzer.cpp
-    src/cpp/UIComponents.cpp
+    src/cpp/FeedbackSession.cpp
 )
 
 target_include_directories(feedback_analyzer PRIVATE src/cpp)
@@ -46,15 +54,20 @@ add_executable(feedback_analyzer_tests
     tests/CsvParserTest.cpp
     tests/FeedbackTest.cpp
     tests/KeywordUtilsTest.cpp
-    tests/support/CsvParser.cpp
+    tests/GoldenMasterTest.cpp
+    src/cpp/CsvParser.cpp
     src/cpp/Constants.cpp
-    src/cpp/TextAnalyzer.cpp
+    src/cpp/KeywordRegistry.cpp
 )
 
 target_include_directories(feedback_analyzer_tests PRIVATE
     src/cpp
     tests
     tests/support
+)
+
+target_compile_definitions(feedback_analyzer_tests PRIVATE
+    GOLDEN_DIR="${CMAKE_SOURCE_DIR}/tests/golden"
 )
 
 target_link_libraries(feedback_analyzer_tests PRIVATE GTest::gtest_main)
@@ -68,3 +81,11 @@ endif()
 
 include(GoogleTest)
 gtest_discover_tests(feedback_analyzer_tests)
+
+add_test(NAME GoldenMaster
+    COMMAND feedback_analyzer_tests --gtest_filter=GoldenMasterTest.*
+)
+set_tests_properties(GoldenMaster PROPERTIES
+    LABELS "golden;domain"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)

@@ -1,64 +1,38 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <map>
-#include <iostream>
 #include "Feedback.h"
-#include "Constants.h"
+#include "FeedbackClassifier.h"
+#include "FilterConstants.h"
 
 class Filters {
-private:
-    static bool containsAny(const std::string& text, const std::vector<std::string>& keywords) {
-        for (const auto& kw : keywords) {
-            if (text.find(kw) != std::string::npos) return true;
-        }
-        return false;
-    }
-
 public:
-    std::vector<Feedback> fil(const std::vector<Feedback>& dataList,
-                              const std::string& sFilter,
-                              const std::string& kFilter) {
-        std::vector<Feedback> tmpFiltered;
+    std::vector<Feedback> filter(const std::vector<Feedback>& dataList,
+                                 const std::string& sentimentFilter,
+                                 const std::string& keywordFilter) {
+        std::vector<Feedback> sentimentFiltered;
 
-        if (sFilter != u8"전체") {
+        if (sentimentFilter != FilterConstants::kAllSentinel) {
             for (const auto& item : dataList) {
-                std::string txt = item.getText();
-                std::string currentSentiment = u8"중립";
-
-                if (containsAny(txt, Constants::SENTIMENT_KEYWORDS[u8"긍정"])) {
-                    currentSentiment = u8"긍정";
-                } else if (containsAny(txt, Constants::SENTIMENT_KEYWORDS[u8"부정"])) {
-                    currentSentiment = u8"부정";
-                }
-
-                if (currentSentiment == sFilter) {
-                    tmpFiltered.push_back(item);
+                if (FeedbackClassifier::classifySentiment(item.getText()) == sentimentFilter) {
+                    sentimentFiltered.push_back(item);
                 }
             }
         } else {
-            tmpFiltered = dataList;
+            sentimentFiltered = dataList;
         }
 
-        std::vector<Feedback> finalFiltered;
-        if (kFilter != u8"전체") {
-            for (const auto& item : tmpFiltered) {
-                std::string txt = item.getText();
-                if (Constants::CATEGORY_KEYWORDS.count(kFilter)) {
-                    const auto& catMap = Constants::CATEGORY_KEYWORDS.at(kFilter);
-                    if (catMap.count("main") && containsAny(txt, catMap.at("main"))) {
-                        finalFiltered.push_back(item);
-                    }
+        std::vector<Feedback> keywordFiltered;
+        if (keywordFilter != FilterConstants::kAllSentinel) {
+            for (const auto& item : sentimentFiltered) {
+                if (FeedbackClassifier::matchCategory(item.getText(), keywordFilter)) {
+                    keywordFiltered.push_back(item);
                 }
             }
         } else {
-            finalFiltered = tmpFiltered;
+            keywordFiltered = sentimentFiltered;
         }
 
-        for (const auto& i : finalFiltered) {
-            std::cout << i.getText() << std::endl;
-        }
-
-        return finalFiltered;
+        return keywordFiltered;
     }
 };

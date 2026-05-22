@@ -20,6 +20,7 @@
 - [프로젝트 구조](#프로젝트-구조)
 - [테스트 실행](#테스트-실행)
 - [RED 단계 To-Do 리스트](#red-단계-to-do-리스트)
+- [Golden Master 회귀 안전장치](#golden-master-회귀-안전장치)
 - [설정 및 데이터](#설정-및-데이터)
 - [출력 포맷](#출력-포맷)
 - [알려진 이슈 (Known Issues)](#알려진-이슈-known-issues)
@@ -427,6 +428,28 @@ ctest --test-dir build --output-on-failure
 - [x] 각 결함에 test_plan ID(T-03/T-05/T-06) 및 failing test명 연결
 - [x] H-1/H-2/H-3 수정 후 `ctest --test-dir build --output-on-failure` Green 확인
 - [x] Phase 1 Green 직후 lcov baseline 수립 (`docs/test_plan.md` §7.4) — `coverage_baseline_phase1.info`, `build/coverage_html/index.html`
+
+---
+
+## Golden Master 회귀 안전장치
+
+> Refactoring 시작 전 구축. GREEN 완료 후 즉시 적용.
+> Domain Service 직렬화 기준 — TextAnalyzer / Filters / CsvParser 출력 (HTML·타임스탬프 제외).
+
+### 기준 파일 생성
+- [ ] GM-01: tests/golden/domain_golden_expected.txt 생성 (GM-D-01: "배송이 너무 늦어요. 화가 납니다." analyze baseline)
+- [ ] GM-02: GM-D-02(중립 필터) / GM-D-03(CSV text 컬럼) / GM-D-04(전체 필터) 시나리오 추가
+- [ ] GM-03: git add tests/golden/domain_golden_expected.txt (버전 관리 포함)
+
+### 테스트 코드
+- [ ] GM-04: tests/GoldenMasterTest.cpp + tests/support/GoldenMaster.h + domain_golden_expected.txt 작성
+- [ ] GM-05: Approval 패턴 적용 (GOLDEN_UPDATE=1 → baseline 갱신, 기본은 [GM-D-xx] 섹션별 비교 + unified diff)
+- [ ] GM-06: CMake: add_test(NAME GoldenMaster COMMAND feedback_analyzer_tests --gtest_filter=GoldenMasterTest.*) → 4/4 PASS 확인
+
+### CI 연동
+- [ ] GM-07: .github/workflows/golden_master.yml 작성 (ctest -R GoldenMaster)
+- [ ] GM-08: PR 머지 차단 (required status check) 설정
+- [ ] GM-09: Refactoring 후 ctest --test-dir build -R GoldenMaster 재실행 → 4/4 PASS 확인
 
 ---
 

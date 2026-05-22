@@ -13,16 +13,16 @@ protected:
 
 // Given-When-Then
 // Given: 빈 vector<Feedback>
-// When:  TextAnalyzer::analyzeSentiment (sent)
+// When:  TextAnalyzer::analyzeSentiment
 // Then:  긍정=0, 중립=0, 부정=0
 // test_plan: T-01
 TEST_F(TextAnalyzerTest, Given_EmptyFeedbackList_When_AnalyzeSentiment_Then_AllCountsAreZero) {
     // Given: 빈 vector<Feedback>
     std::vector<Feedback> feedbacks;
 
-    // When: TextAnalyzer::sent(feedbacks)
+    // When: TextAnalyzer::analyzeSentiment(feedbacks)
     TextAnalyzer analyzer;
-    const auto result = analyzer.sent(feedbacks);
+    const auto result = analyzer.analyzeSentiment(feedbacks);
 
     // Then: 긍정=0, 중립=0, 부정=0
     EXPECT_EQ(result.at(u8"긍정"), 0);
@@ -43,7 +43,7 @@ TEST_F(TextAnalyzerTest, Given_NeutralText_When_AnalyzeSentiment_Then_Classified
 
     // When: analyzeSentiment
     TextAnalyzer analyzer;
-    const auto result = analyzer.sent(feedbacks);
+    const auto result = analyzer.analyzeSentiment(feedbacks);
 
     // Then: 감정=중립 (기본값)
     EXPECT_EQ(result.at(u8"중립"), 1);
@@ -64,7 +64,7 @@ TEST_F(TextAnalyzerTest, Given_CategoryKeywordOnly_When_AnalyzeSentiment_Then_Cl
 
     // When: analyzeSentiment
     TextAnalyzer analyzer;
-    const auto result = analyzer.sent(feedbacks);
+    const auto result = analyzer.analyzeSentiment(feedbacks);
 
     // Then: 감정=중립 (카테고리≠감정 분리)
     EXPECT_EQ(result.at(u8"긍정"), 0);
@@ -85,7 +85,7 @@ TEST_F(TextAnalyzerTest, Given_MixedPositiveAndNegativeKeywords_When_AnalyzeSent
 
     // When: analyzeSentiment
     TextAnalyzer analyzer;
-    const auto result = analyzer.sent(feedbacks);
+    const auto result = analyzer.analyzeSentiment(feedbacks);
 
     // Then: 긍정 우선 (판정 순서: 긍정 → 부정 → 중립)
     EXPECT_EQ(result.at(u8"긍정"), 1);
