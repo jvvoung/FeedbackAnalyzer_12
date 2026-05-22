@@ -4,24 +4,36 @@ project(FeedbackAnalyzer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(feedback_analyzer
-    src/cpp/main.cpp
-    src/cpp/Constants.cpp
-    src/cpp/KeywordRegistry.cpp
-    src/cpp/AnalyzeUseCase.cpp
-    src/cpp/FilterUseCase.cpp
-    src/cpp/AppState.cpp
-    src/cpp/FormParser.cpp
-    src/cpp/CsvParser.cpp
-    src/cpp/AppMessages.cpp
-    src/cpp/HtmlPageRenderer.cpp
-    src/cpp/CsvExporter.cpp
-    src/cpp/RouteHandlers.cpp
-    src/cpp/Logger.cpp
-    src/cpp/FeedbackSession.cpp
+set(FA_SRC_ROOT ${CMAKE_SOURCE_DIR}/src/cpp)
+set(FA_INCLUDE_DIRS
+    ${FA_SRC_ROOT}
+    ${FA_SRC_ROOT}/app
+    ${FA_SRC_ROOT}/app/http
+    ${FA_SRC_ROOT}/app/ui
+    ${FA_SRC_ROOT}/app/state
+    ${FA_SRC_ROOT}/app/usecase
+    ${FA_SRC_ROOT}/csv
+    ${FA_SRC_ROOT}/feedback
 )
 
-target_include_directories(feedback_analyzer PRIVATE src/cpp)
+add_executable(feedback_analyzer
+    src/cpp/app/main.cpp
+    src/cpp/feedback/Constants.cpp
+    src/cpp/feedback/KeywordRegistry.cpp
+    src/cpp/app/usecase/AnalyzeUseCase.cpp
+    src/cpp/app/usecase/FilterUseCase.cpp
+    src/cpp/app/state/AppState.cpp
+    src/cpp/app/http/FormParser.cpp
+    src/cpp/csv/CsvParser.cpp
+    src/cpp/app/ui/AppMessages.cpp
+    src/cpp/app/ui/HtmlPageRenderer.cpp
+    src/cpp/csv/CsvExporter.cpp
+    src/cpp/app/http/RouteHandlers.cpp
+    src/cpp/app/state/Logger.cpp
+    src/cpp/app/state/FeedbackSession.cpp
+)
+
+target_include_directories(feedback_analyzer PRIVATE ${FA_INCLUDE_DIRS})
 
 # Windows: httplib mmap uses CreateFile2 / CreateFileMappingFromApp (Win8+).
 # MinGW defaults to older WINVER unless raised here.
@@ -59,24 +71,24 @@ add_executable(feedback_analyzer_tests
     tests/FileHandlerTest.cpp
     tests/BoundaryUseCaseTest.cpp
     tests/RouteHandlersBoundaryTest.cpp
-    src/cpp/CsvParser.cpp
-    src/cpp/Constants.cpp
-    src/cpp/KeywordRegistry.cpp
-    src/cpp/CsvExporter.cpp
-    src/cpp/FileHandler.cpp
-    src/cpp/AnalyzeUseCase.cpp
-    src/cpp/FilterUseCase.cpp
-    src/cpp/AppState.cpp
-    src/cpp/FeedbackSession.cpp
-    src/cpp/AppMessages.cpp
-    src/cpp/RouteHandlers.cpp
-    src/cpp/HtmlPageRenderer.cpp
-    src/cpp/FormParser.cpp
-    src/cpp/Logger.cpp
+    src/cpp/csv/CsvParser.cpp
+    src/cpp/feedback/Constants.cpp
+    src/cpp/feedback/KeywordRegistry.cpp
+    src/cpp/csv/CsvExporter.cpp
+    src/cpp/csv/FileHandler.cpp
+    src/cpp/app/usecase/AnalyzeUseCase.cpp
+    src/cpp/app/usecase/FilterUseCase.cpp
+    src/cpp/app/state/AppState.cpp
+    src/cpp/app/state/FeedbackSession.cpp
+    src/cpp/app/ui/AppMessages.cpp
+    src/cpp/app/http/RouteHandlers.cpp
+    src/cpp/app/ui/HtmlPageRenderer.cpp
+    src/cpp/app/http/FormParser.cpp
+    src/cpp/app/state/Logger.cpp
 )
 
 target_include_directories(feedback_analyzer_tests PRIVATE
-    src/cpp
+    ${FA_INCLUDE_DIRS}
     tests
     tests/support
 )

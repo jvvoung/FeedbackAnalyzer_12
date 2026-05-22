@@ -1,0 +1,369 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.8 Chrome/140.0.7339.240 Electron/38.4.0 Safari/537.36" version="28.2.8">
+  <diagram id="FeedbackAnalyzerRefactoringClassDiagram" name="Class Diagram (Refactoring)">
+    <mxGraphModel dx="2169" dy="1282" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="2400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Feedback Analyzer — Refactoring Class Diagram&#xa;src/cpp/ (tests/ 제외) · ECB/Dual-Track · 모듈화 app/csv/feedback/" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="520" y="10" width="1200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="diff_box" value="&lt;b&gt;Legacy 대비 핵심 차별점&lt;/b&gt;&lt;hr&gt;&lt;table style=&quot;width:100%;font-size:11px;&quot; cellpadding=&quot;2&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Legacy&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Refactoring (현재)&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;main.cpp God Module (~372줄)&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;main 18줄 bootstrap + RouteHandlers&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Session + fil_data 전역&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;AppState + FeedbackSession&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;sent()/kw()/fil()&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;analyzeSentiment()/filter() + UseCase&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;S_KEYWORDS 이중 감성 사전&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;Constants 단일 소스 + FeedbackClassifier&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;containsAny() 중복&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;KeywordUtils 공통&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;first-match if-else 감성&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;SentimentClassifier::classifyWeighted()&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;UIComponents (CATS 중복)&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;KeywordRegistry 단일 등록&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;FileHandler cout 스텁&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;FileHandler::saveToCsv() RAII&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;CSV/HTML/라우팅 main 혼재&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;CsvParser·Exporter·FormParser·HtmlPageRenderer&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;flat src/cpp/&lt;/td&gt;&lt;td&gt;&lt;font color=&quot;#006600&quot;&gt;app/http·ui·state·usecase, csv/, feedback/&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="40" y="70" width="420" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_app" value="Application — app/ (Boundary + Control)" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="480" y="70" width="1320" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="main_cls" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;main&lt;/b&gt; &amp;lt;app/main.cpp&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;18줄 bootstrap&lt;/font&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ main(): int&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;Constants::init()&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;RouteHandlers::registerRoutes()&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:16px;&quot;&gt;server.listen()&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;spacingTop=4;spacingLeft=4;" parent="pkg_app" vertex="1">
+          <mxGeometry x="30" width="200" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="RouteHandlers" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;RouteHandlers&lt;/b&gt; &amp;lt;app/http&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- textAnalyzer_: TextAnalyzer&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- filters_: Filters&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ registerRoutes(server): void&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- handleGetRoot/PostAnalyze/...&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;" parent="pkg_app" vertex="1">
+          <mxGeometry x="256" y="1" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="AnalyzeUseCase" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;AnalyzeUseCase&lt;/b&gt; &amp;lt;app/usecase&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- analyzer_: TextAnalyzer&amp;amp;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ analyzeAll(feedbacks, text): AnalyzeResult&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;" parent="pkg_app" vertex="1">
+          <mxGeometry x="570" width="240" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="FilterUseCase" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;FilterUseCase&lt;/b&gt; &amp;lt;app/usecase&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- analyzer_: TextAnalyzer&amp;amp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- filters_: Filters&amp;amp;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ filterAll(...): FilterResult&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;" parent="pkg_app" vertex="1">
+          <mxGeometry x="840" width="240" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="structs_note" value="&lt;b&gt;UseCase DTO&lt;/b&gt;&lt;hr&gt;AnalyzeResult&lt;br&gt;FilterResult / FilterStatus" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;fontSize=11;" parent="pkg_app" vertex="1">
+          <mxGeometry x="1092" y="12" width="150" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="y-bXGLR1jYehqj1HtlrG-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="pkg_app" source="FormParser" target="main_cls">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FormParser" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;FormParser&lt;/b&gt; &amp;lt;app/http&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} parse(body): map&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} urlDecode(str): string&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;" parent="pkg_app" vertex="1">
+          <mxGeometry x="30" y="180" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="HtmlPageRenderer" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;HtmlPageRenderer&lt;/b&gt; &amp;lt;app/ui&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} render(viewModel): string&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&amp;laquo;struct&amp;raquo; PageViewModel&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;" parent="pkg_app" vertex="1">
+          <mxGeometry x="256" y="180" width="264" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="AppMessages" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;AppMessages&lt;/b&gt; &amp;lt;app/ui&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} analyzerStart(): const char*&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} filterNoResults(): const char*&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} feedbackCountSuccess(n): string&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;" parent="pkg_app" vertex="1">
+          <mxGeometry x="560" y="180" width="250" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ServerConfig" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;&amp;laquo;namespace&amp;raquo; ServerConfig&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;kBindHost, kPort&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ publicUrl(): string&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d6b656;fontSize=12;" parent="pkg_app" vertex="1">
+          <mxGeometry x="840" y="180" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="y-bXGLR1jYehqj1HtlrG-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=0;dashed=1;exitX=0.75;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="pkg_app" source="FilterUseCase" target="ServerConfig">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="160" />
+              <mxPoint x="1030" y="160" />
+              <mxPoint x="1030" y="330" />
+              <mxPoint x="530" y="330" />
+              <mxPoint x="530" y="160" />
+              <mxPoint x="1020" y="160" />
+            </Array>
+            <mxPoint x="1000" y="150" as="sourcePoint" />
+            <mxPoint x="484" y="562" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pkg_ext" value="External" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=14;startSize=36;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1820" y="70" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="httplib" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;&amp;laquo;external&amp;raquo; httplib&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ Server, Request, Response&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#eeeeee;strokeColor=#666666;fontSize=12;" parent="pkg_ext" vertex="1">
+          <mxGeometry x="24" width="260" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="legacy_ref" value="&lt;b&gt;Legacy 참조&lt;/b&gt;&lt;hr&gt;FeedbackAnalyzer_class_diagram_Legacy.drawio&lt;hr&gt;제거됨: Session, UIComponents, S_KEYWORDS, fil_data, renderPage in main" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;fontSize=11;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1820" y="250" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_state" value="State — app/state/" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="40" y="430" width="460" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="AppState" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;AppState&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} currentFeedbacks_: vector&amp;lt;Feedback&amp;gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- {static} lastFilteredFeedbacks_: vector&amp;lt;Feedback&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ currentFeedbacks(): vector&amp;lt;Feedback&amp;gt;&amp;amp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ setLastFilteredFeedbacks(...): void&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#9673a6;fontSize=12;" parent="pkg_state" vertex="1">
+          <mxGeometry x="30" width="430" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="FeedbackSession" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;FeedbackSession&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;Session/getOldDataFromSession 대체&lt;/font&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} getCurrent(): vector&amp;lt;Feedback&amp;gt;&amp;amp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} getLastFiltered(): const vector&amp;lt;Feedback&amp;gt;&amp;amp;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} update/clear(...): void&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#9673a6;fontSize=12;" parent="pkg_state" vertex="1">
+          <mxGeometry x="30" y="166" width="430" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Logger" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Logger&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} logInfo/Warning/Error/Debug(...)&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#9673a6;fontSize=12;" parent="pkg_state" vertex="1">
+          <mxGeometry x="30" y="310" width="430" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_domain" value="Domain — feedback/" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="540" y="430" width="300" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="Feedback" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Feedback&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;- text: string&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ Feedback(text: string)&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ getText(): const string&amp;amp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=12;" parent="pkg_domain" vertex="1">
+          <mxGeometry x="30" width="270" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_config" value="Configuration — feedback/" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="430" width="380" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="Constants" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Constants&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;SENTIMENT_KEYWORDS, CATEGORY_KEYWORDS&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} init(): void&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" parent="pkg_config" vertex="1">
+          <mxGeometry x="30" width="350" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="KeywordRegistry" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;KeywordRegistry&lt;/b&gt; &amp;lt;신규&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;UIComponents 대체&lt;/font&gt;&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ categoryNames(): const vector&amp;lt;string&amp;gt;&amp;amp;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" parent="pkg_config" vertex="1">
+          <mxGeometry x="30" y="110" width="350" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="KeywordUtils" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;&amp;laquo;namespace&amp;raquo; KeywordUtils&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ containsAny(text, keywords): bool&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;TextAnalyzer·Filters 중복 제거&lt;/font&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#d79b00;fontSize=12;" parent="pkg_config" vertex="1">
+          <mxGeometry x="30" y="220" width="350" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_service" value="Service / Classification — feedback/" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="540" y="620" width="480" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="TextAnalyzer" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;TextAnalyzer&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;globalSent/Kw 제거&lt;/font&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ analyzeSentiment(feedbacks): map&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ analyzeKeywords(feedbacks): map&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" parent="pkg_service" vertex="1">
+          <mxGeometry x="30" width="210" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="Filters" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;Filters&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;S_KEYWORDS/initFilterKeywords 제거&lt;/font&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ filter(dataList, sFilter, kFilter): vector&amp;lt;Feedback&amp;gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" parent="pkg_service" vertex="1">
+          <mxGeometry x="266" width="214" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="FeedbackClassifier" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;FeedbackClassifier&lt;/b&gt; &amp;lt;신규&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} classifySentiment(text): string&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} matchCategory(text, category): bool&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" parent="pkg_service" vertex="1">
+          <mxGeometry x="30" y="170" width="210" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="SentimentClassifier" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;SentimentClassifier&lt;/b&gt; &amp;lt;신규&amp;gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&amp;laquo;struct&amp;raquo; SentimentScore { positive, negative }&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ scoreWeighted(text): SentimentScore&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ classifyWeighted(text): string&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ classify(text): string&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#82b366;fontSize=12;" parent="pkg_service" vertex="1">
+          <mxGeometry x="270" y="170" width="210" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pkg_csv" value="CSV I/O — csv/" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;startSize=36;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="855" width="380" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="CsvParser" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;CsvParser&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ parse(csvContent): CsvParseResult&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;text 컬럼 인덱스 (H-2)&lt;/font&gt;&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#b85450;fontSize=12;" parent="pkg_csv" vertex="1">
+          <mxGeometry x="30" width="170" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="CsvExporter" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;CsvExporter&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ exportFilteredFeedbacks(...): string&lt;/p&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ contentType/contentDisposition(): string&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#b85450;fontSize=12;" parent="pkg_csv" vertex="1">
+          <mxGeometry x="216" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="FileHandler" value="&lt;p style=&quot;margin:0px;&quot;&gt;&lt;b&gt;FileHandler&lt;/b&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;&lt;font color=&quot;#006600&quot;&gt;cout 스텁 → saveToCsv()&lt;/font&gt;&lt;/p&gt;&lt;hr&gt;&lt;p style=&quot;margin:0px;margin-left:8px;&quot;&gt;+ {static} saveToCsv(data, path): bool&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#b85450;fontSize=12;" parent="pkg_csv" vertex="1">
+          <mxGeometry x="30" y="140" width="170" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="const_ns" value="&lt;b&gt;«namespace»&lt;/b&gt;&lt;hr&gt;FilterConstants&lt;br&gt;CsvConstants" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;fontSize=11;" parent="pkg_csv" vertex="1">
+          <mxGeometry x="220" y="195" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" value="&lt;b&gt;범례&lt;/b&gt;&lt;hr&gt;——&amp;gt; 의존 (uses / «include»)&lt;br&gt;◆——&amp;gt; Composition (contains)&lt;br&gt;녹색 글씨 = Legacy 대비 개선점&lt;br&gt;연결선은 클래스 박스 우회(orthogonal)&lt;br&gt;All edges routed outside class boxes (orthogonal)&lt;hr&gt;&lt;b&gt;구조 특징 (Refactoring)&lt;/b&gt;&lt;br&gt;• ECB: Entity(Feedback) / Control(UseCase) / Boundary(RouteHandlers·UI)&lt;br&gt;• Domain Golden Master 회귀 게이트 (GM-D-01~04)&lt;br&gt;• PRD §7.2 HTTP·CSV 계약 유지&lt;br&gt;• 상속/인터페이스 없음 (헤더-only Service 다수)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffffcc;strokeColor=#999999;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="40" y="1200" width="400" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="dir_tree" value="&lt;b&gt;src/cpp/ 모듈 트리&lt;/b&gt;&lt;hr&gt;app/&lt;br&gt;  main.cpp&lt;br&gt;  http/ RouteHandlers, FormParser, ServerConfig&lt;br&gt;  ui/ HtmlPageRenderer, AppMessages&lt;br&gt;  state/ AppState, FeedbackSession, Logger&lt;br&gt;  usecase/ AnalyzeUseCase, FilterUseCase&lt;br&gt;csv/ CsvParser, CsvExporter, FileHandler, CsvConstants&lt;br&gt;feedback/ Feedback, TextAnalyzer, Filters,&lt;br&gt;  SentimentClassifier, FeedbackClassifier,&lt;br&gt;  Constants, KeywordRegistry, KeywordUtils&lt;br&gt;httplib.h (external)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="480" y="1200" width="360" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="removed_box" value="&lt;b&gt;Legacy에서 제거/대체된 항목&lt;/b&gt;&lt;hr&gt;✗ Session (getOldDataFromSession)&lt;br&gt;✗ UIComponents (CATS)&lt;br&gt;✗ Filters::S_KEYWORDS&lt;br&gt;✗ main::fil_data 전역&lt;br&gt;✗ main::renderPage()&lt;br&gt;✗ FileHandler::saveResult() cout 스텁&lt;br&gt;✗ TextAnalyzer::globalSent/Kw" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="880" y="1200" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_rh" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=1;" parent="1" source="main_cls" target="RouteHandlers" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fs_as" value="delegates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="FeedbackSession" target="AppState" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fh_csve" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.5;entryX=0;entryY=0.75;" parent="1" source="FileHandler" target="CsvExporter" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1250" y="1075" />
+              <mxPoint x="1250" y="960" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_ta_fc" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" parent="1" source="TextAnalyzer" target="FeedbackClassifier" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_f_fc" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" parent="1" source="Filters" target="FeedbackClassifier" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fc_sc" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="FeedbackClassifier" target="SentimentClassifier" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rh_analyze" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="RouteHandlers" target="AnalyzeUseCase" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rh_filter_uc" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="RouteHandlers" target="FilterUseCase" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1420" y="210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_rh_form" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="RouteHandlers" target="FormParser" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="610" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_rh_html" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;" parent="1" source="RouteHandlers" target="HtmlPageRenderer" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_main_httplib" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.25;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="main_cls" target="httplib" edge="1">
+          <mxGeometry x="-0.1" y="10" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="105" />
+              <mxPoint x="720" y="60" />
+              <mxPoint x="1974" y="60" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_main_c" value="init()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0.5;exitY=1;entryX=0;entryY=0.25;" parent="1" source="main_cls" target="Constants" edge="1">
+          <mxGeometry x="-0.15" y="-8" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="610" y="240" />
+              <mxPoint x="720" y="240" />
+              <mxPoint x="720" y="400" />
+              <mxPoint x="1030" y="400" />
+              <mxPoint x="1030" y="464" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_main_log" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0;exitY=0.75;entryX=0;entryY=0.5;" parent="1" source="main_cls" target="Logger" edge="1">
+          <mxGeometry x="-0.12" y="8" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="470" y="175" />
+              <mxPoint x="470" y="380" />
+              <mxPoint x="30" y="380" />
+              <mxPoint x="30" y="810" />
+              <mxPoint x="64" y="810" />
+              <mxPoint x="64" y="785" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_rh_ta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" parent="1" source="RouteHandlers" target="TextAnalyzer" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="866" y="400" />
+              <mxPoint x="669" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_rh_f" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=1;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" parent="1" source="RouteHandlers" target="Filters" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1010" y="221" />
+              <mxPoint x="1010" y="400" />
+              <mxPoint x="913" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_rh_csvp" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.75;entryX=0.5;entryY=0;" parent="1" source="RouteHandlers" target="CsvParser" edge="1">
+          <mxGeometry x="-0.08" y="10" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="184" />
+              <mxPoint x="1020" y="400" />
+              <mxPoint x="1520" y="400" />
+              <mxPoint x="1520" y="830" />
+              <mxPoint x="1155" y="830" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_rh_csve" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=1;entryX=0.5;entryY=0;" parent="1" source="RouteHandlers" target="CsvExporter" edge="1">
+          <mxGeometry x="-0.08" y="12" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1030" y="221" />
+              <mxPoint x="1030" y="400" />
+              <mxPoint x="1540" y="400" />
+              <mxPoint x="1540" y="840" />
+              <mxPoint x="1336" y="840" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_rh_fs" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0;exitY=0.75;entryX=1;entryY=0.5;" parent="1" source="RouteHandlers" target="FeedbackSession" edge="1">
+          <mxGeometry x="-0.1" y="8" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="184" />
+              <mxPoint x="720" y="230" />
+              <mxPoint x="510" y="230" />
+              <mxPoint x="510" y="656" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_as_fb" value="1..*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="AppState" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="540" />
+              <mxPoint x="520" y="540" />
+              <mxPoint x="520" y="507" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_ta_kr" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" parent="1" source="TextAnalyzer" target="KeywordRegistry" edge="1">
+          <mxGeometry x="-0.1" y="8" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="670" />
+              <mxPoint x="790" y="670" />
+              <mxPoint x="790" y="600" />
+              <mxPoint x="1064" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_fc_ku" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.5;entryX=0;entryY=0.75;" parent="1" source="FeedbackClassifier" target="KeywordUtils" edge="1">
+          <mxGeometry x="-0.08" y="10" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="780" />
+              <mxPoint x="1000" y="780" />
+              <mxPoint x="1000" y="760" />
+              <mxPoint x="1064" y="760" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_fc_c" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.25;entryX=0;entryY=0.75;" parent="1" source="FeedbackClassifier" target="Constants" edge="1">
+          <mxGeometry x="-0.1" y="-6" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="780" />
+              <mxPoint x="1030" y="780" />
+              <mxPoint x="1030" y="490" />
+              <mxPoint x="1064" y="490" />
+              <mxPoint x="1064" y="496" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_sc_c" value="SENTIMENT_KEYWORDS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=1;exitY=0.75;entryX=0;entryY=1;" parent="1" source="SentimentClassifier" target="Constants" edge="1">
+          <mxGeometry x="-0.12" y="8" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="830" />
+              <mxPoint x="1030" y="830" />
+              <mxPoint x="1030" y="518" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_csvp_fb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0;exitY=0.5;entryX=1;entryY=0.75;" parent="1" source="CsvParser" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1064" y="912" />
+              <mxPoint x="1064" y="810" />
+              <mxPoint x="1480" y="810" />
+              <mxPoint x="1480" y="420" />
+              <mxPoint x="870" y="420" />
+              <mxPoint x="870" y="542" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_csve_fb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0;exitY=0.5;entryX=1;entryY=0.25;" parent="1" source="CsvExporter" target="Feedback" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1256" y="963" />
+              <mxPoint x="1560" y="963" />
+              <mxPoint x="1560" y="410" />
+              <mxPoint x="860" y="410" />
+              <mxPoint x="860" y="468" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_analyze_ta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=0;dashed=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" parent="1" source="AnalyzeUseCase" target="TextAnalyzer" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="866" y="400" />
+              <mxPoint x="711" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_filteruc_ta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=0;dashed=1;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" parent="1" source="FilterUseCase" target="TextAnalyzer" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="866" y="400" />
+              <mxPoint x="747" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_filteruc_f" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=diamond;endFill=0;dashed=1;exitX=0.75;exitY=1;entryX=0.75;entryY=0;" parent="1" source="ServerConfig" target="Filters" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="899" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_filteruc_as" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;exitX=0;exitY=0.75;entryX=1;entryY=0.25;" parent="1" source="FilterUseCase" target="AppState" edge="1">
+          <mxGeometry x="-0.1" y="8" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1310" y="183" />
+              <mxPoint x="1310" y="400" />
+              <mxPoint x="500" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
