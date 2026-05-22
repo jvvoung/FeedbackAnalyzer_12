@@ -66,5 +66,17 @@ TEST_F(TextAnalyzerTest, Given_CategoryKeywordOnly_When_AnalyzeSentiment_Then_Cl
 // Then:  긍정 우선 (판정 순서: 긍정 → 부정 → 중립)
 // test_plan: EX-09, F-06
 TEST_F(TextAnalyzerTest, Given_MixedPositiveAndNegativeKeywords_When_AnalyzeSentiment_Then_PositiveFirst) {
-    FAIL() << "RED";  // EX-09, F-06
+    // Given: 긍정·부정 SENTIMENT_KEYWORDS 동시 포함 텍스트
+    std::vector<Feedback> feedbacks = {
+        Feedback(u8"좋아요 but 나쁘기도 해요"),
+    };
+
+    // When: analyzeSentiment
+    TextAnalyzer analyzer;
+    const auto result = analyzer.sent(feedbacks);
+
+    // Then: 긍정 우선 (판정 순서: 긍정 → 부정 → 중립)
+    EXPECT_EQ(result.at(u8"긍정"), 1);
+    EXPECT_EQ(result.at(u8"부정"), 0);
+    EXPECT_EQ(result.at(u8"중립"), 0);
 }
