@@ -230,6 +230,15 @@ static std::vector<std::string> parseCsvLine(const std::string& line) {
     return fields;
 }
 
+static std::size_t findTextColumnIndex(const std::vector<std::string>& headerFields) {
+    for (std::size_t i = 0; i < headerFields.size(); ++i) {
+        if (headerFields[i] == "text") {
+            return i;
+        }
+    }
+    return static_cast<std::size_t>(-1);
+}
+
 int main() {
     Constants::init();
     Filters::initFilterKeywords();
@@ -296,13 +305,19 @@ int main() {
                     std::istringstream stream(file.content);
                     std::string line;
                     bool firstLine = true;
+                    std::size_t textIndex = static_cast<std::size_t>(-1);
                     while (std::getline(stream, line)) {
                         if (!line.empty() && line.back() == '\r') line.pop_back();
-                        if (firstLine) { firstLine = false; continue; }
+                        if (firstLine) {
+                            firstLine = false;
+                            textIndex = findTextColumnIndex(parseCsvLine(line));
+                            continue;
+                        }
                         if (line.empty()) continue;
+                        if (textIndex == static_cast<std::size_t>(-1)) continue;
                         auto fields = parseCsvLine(line);
-                        if (!fields.empty() && !fields[0].empty()) {
-                            feedbacks.push_back(Feedback(fields[0]));
+                        if (fields.size() > textIndex && !fields[textIndex].empty()) {
+                            feedbacks.push_back(Feedback(fields[textIndex]));
                         }
                     }
                     Logger::logInfo(u8"파일이 성공적으로 업로드되었습니다.");
