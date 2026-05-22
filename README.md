@@ -19,6 +19,7 @@
 - [아키텍처](#아키텍처)
 - [프로젝트 구조](#프로젝트-구조)
 - [테스트 실행](#테스트-실행)
+- [RED 단계 To-Do 리스트](#red-단계-to-do-리스트)
 - [설정 및 데이터](#설정-및-데이터)
 - [출력 포맷](#출력-포맷)
 - [알려진 이슈 (Known Issues)](#알려진-이슈-known-issues)
@@ -385,6 +386,46 @@ ctest --test-dir build --output-on-failure
 도구: gcov/lcov 또는 동등 (`docs/PRD.md` §4.3, `.cursorrules` §5)
 
 **경계값 테스트 필수:** 빈 입력, 단일 피드백, `중립`만 해당, `전체` 필터, `text` 컬럼 없는 CSV, main 키워드만 포함 피드백 (`docs/PRD.md` §4.3)
+
+---
+
+## RED 단계 To-Do 리스트
+
+> 이 체크리스트는 docs/test_plan.md 기반으로 생성되었습니다.
+> 각 항목은 RED(실패 테스트 작성) 완료 시 체크합니다.
+> Phase 1: T-03, T-05, T-06 failing test → H-1/H-2/H-3 수정 → Green.
+
+### Track A — HTTP / Boundary 테스트 (수동·스모크)
+- [ ] TC-A-01: POST `/analyze` — `text=배송이 너무 늦어요. 화가 납니다.` → 감정 stat 부정 +1, 키워드 stat 배송 +1 (Happy Path, T-02)
+- [ ] TC-A-02: POST `/analyze` — `text=` 또는 공백만 → 피드백 미추가, 기존 건수 유지 (T-08)
+- [ ] TC-A-03: Session 비어 있을 때 POST `/filter` → warning `분석할 피드백이 없습니다.` (T-09)
+- [ ] TC-A-04: 필터 조건 불일치 → warning `필터링 결과가 없습니다.` (T-10)
+- [ ] TC-A-05: GET `/download` 필터 미실행 → BOM + `text\n` 헤더만, 데이터 0건 (EX-04, M-6)
+- [ ] TC-A-06: POST `/upload` — CSV `text` 컬럼 없음 (`id,comment`) → error `파일 업로드 중 오류가 발생했습니다.` (T-05, EX-06)
+- [ ] TC-A-07: textarea 개행 입력 → analyze → filter → download 시 `\n` 유지 (T-11, AC-7)
+- [ ] TC-A-08: 부록 A HTTP-S-01~05 엔드포인트 회귀 체크리스트 (AC-5)
+
+### Track B — Domain / Service 단위 테스트 (Google Test)
+- [ ] TC-B-01: T-01 — 빈 Feedback 목록 → analyzeSentiment → 긍정=0, 중립=0, 부정=0
+- [ ] TC-B-02: T-03 / AC-1 / H-1 — `text="그냥 그래요. 특별한 감정 없음."` → filter sentiment=중립 → TextAnalyzer 중립 집합과 100% 일치
+- [ ] TC-B-03: T-04 — sentiment=전체, keyword=전체 → 입력 전체 반환
+- [ ] TC-B-04: T-05 / AC-2 / H-2 — CSV `id,comment\n1,hello` → `text` 컬럼 파싱, fields[0] 사용 금지
+- [ ] TC-B-05: T-06 / AC-3 / H-3 — `text="택배가 빨라요."` → filter keyword=배송 → 1건 포함 (main 키워드)
+- [ ] TC-B-06: T-07 — `text="품질이 별로예요."` → analyzeSentiment=중립 (카테고리≠감정 분리)
+- [ ] TC-B-07: EX-09 — 긍정·부정 키워드 동시 포함 → 긍정 우선 (판정 순서 F-06)
+- [ ] TC-B-08: Filters·TextAnalyzer — `Constants::SENTIMENT_KEYWORDS` 단일 소스 사용 (EX-01, M-7)
+
+### 커버리지 목표
+- [ ] TextAnalyzer / Filters / CsvParser / Feedback: 각 ≥ 90% (PRD §4.3, AC-4)
+- [ ] Domain (Service) stretch: ≥ 95% (# gcov / lcov, `docs/test_plan.md` §6.2)
+- [ ] Boundary (T-01~T-11, EX-01~EX-10): ≥ 85%+
+- [ ] HTTP 핸들러 (main.cpp): 90% 목표 아님 — 부록 A 체크리스트로 검증
+
+### 결함 목록 연결
+- [ ] docs/defect_list.md 생성 — H-1(중립 필터), H-2(CSV text), H-3(main 키워드), H-4(테스트 부재) 기록
+- [ ] 각 결함에 test_plan ID(T-03/T-05/T-06) 및 failing test명 연결
+- [ ] H-1/H-2/H-3 수정 후 `ctest --test-dir build --output-on-failure` Green 확인
+- [ ] Phase 1 Green 직후 lcov baseline 수립 (`docs/test_plan.md` §7.4)
 
 ---
 
