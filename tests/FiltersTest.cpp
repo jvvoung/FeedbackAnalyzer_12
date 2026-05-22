@@ -48,7 +48,19 @@ TEST_F(FiltersTest, Given_NeutralText_When_FilterSentimentNeutral_Then_MatchesTe
 // Then:  입력 전체 3건 반환
 // test_plan: T-04
 TEST_F(FiltersTest, Given_MixedThreeFeedbacks_When_FilterAllSentimentAllKeyword_Then_ReturnsAllThree) {
-    FAIL() << "RED";  // T-04
+    // Given: Feedback 3건 (감정·카테고리 혼합)
+    std::vector<Feedback> feedbacks = {
+        Feedback(u8"좋아요 만족합니다."),
+        Feedback(u8"배송이 너무 늦어요."),
+        Feedback(u8"그냥 그래요. 특별한 감정 없음."),
+    };
+
+    // When: filter sentiment=전체, keyword=전체
+    Filters filters;
+    const auto filtered = filters.fil(feedbacks, u8"전체", u8"전체");
+
+    // Then: 입력 전체 3건 반환
+    EXPECT_EQ(filtered.size(), 3u);
 }
 
 // Given-When-Then
