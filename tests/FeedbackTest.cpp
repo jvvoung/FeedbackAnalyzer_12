@@ -8,7 +8,14 @@
 // Then:  개행(\n) 유지
 // test_plan: T-11, AC-7
 TEST(FeedbackTest, Given_MultilineText_When_CreateFeedback_Then_PreservesNewlines) {
-    FAIL() << "RED";  // T-11, AC-7
+    // Given: text="첫 줄\n두 번째 줄"
+    const std::string text = u8"첫 줄\n두 번째 줄";
+
+    // When: Feedback 생성 후 getText()
+    Feedback feedback(text);
+
+    // Then: 개행(\n) 유지
+    EXPECT_EQ(feedback.getText(), text);
 }
 
 // Given-When-Then

@@ -374,6 +374,12 @@ int main() {
 
     // GET /download
     svr.Get("/download", [](const httplib::Request&, httplib::Response& res) {
+        if (fil_data.empty()) {
+            Logger::logWarning(u8"다운로드할 필터 결과가 없습니다.");
+            std::string html = renderPage("", u8"다운로드할 필터 결과가 없습니다.", "", {}, {}, {});
+            res.set_content(html, "text/html; charset=UTF-8");
+            return;
+        }
         std::ostringstream csv;
         // UTF-8 BOM
         csv << "\xEF\xBB\xBF";
