@@ -49,6 +49,7 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(feedback_analyzer_tests
+    tests/SentimentClassifierTest.cpp
     tests/TextAnalyzerTest.cpp
     tests/FiltersTest.cpp
     tests/CsvParserTest.cpp
