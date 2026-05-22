@@ -1,12 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <map>
 #include <iostream>
 #include "Feedback.h"
-#include "Constants.h"
-#include "KeywordUtils.h"
-#include "SentimentClassifier.h"
+#include "FeedbackClassifier.h"
 
 class Filters {
 public:
@@ -17,7 +14,7 @@ public:
 
         if (sFilter != u8"전체") {
             for (const auto& item : dataList) {
-                if (SentimentClassifier::classify(item.getText()) == sFilter) {
+                if (FeedbackClassifier::classifySentiment(item.getText()) == sFilter) {
                     tmpFiltered.push_back(item);
                 }
             }
@@ -28,12 +25,8 @@ public:
         std::vector<Feedback> finalFiltered;
         if (kFilter != u8"전체") {
             for (const auto& item : tmpFiltered) {
-                std::string txt = item.getText();
-                if (Constants::CATEGORY_KEYWORDS.count(kFilter)) {
-                    const auto& catMap = Constants::CATEGORY_KEYWORDS.at(kFilter);
-                    if (catMap.count("main") && KeywordUtils::containsAny(txt, catMap.at("main"))) {
-                        finalFiltered.push_back(item);
-                    }
+                if (FeedbackClassifier::matchCategory(item.getText(), kFilter)) {
+                    finalFiltered.push_back(item);
                 }
             }
         } else {

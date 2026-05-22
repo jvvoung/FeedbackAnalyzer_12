@@ -4,14 +4,12 @@
 #include <vector>
 
 #include "Feedback.h"
-#include "Constants.h"
-#include "KeywordUtils.h"
-#include "SentimentClassifier.h"
+#include "FeedbackClassifier.h"
 
 namespace test_support {
 
 inline std::string classifySentimentWithAnalyzerRules(const std::string& text) {
-    return SentimentClassifier::classify(text);
+    return FeedbackClassifier::classifySentiment(text);
 }
 
 inline std::vector<Feedback> getAnalyzerNeutralSubset(const std::vector<Feedback>& feedbacks) {
@@ -24,16 +22,11 @@ inline std::vector<Feedback> getAnalyzerNeutralSubset(const std::vector<Feedback
     return result;
 }
 
-// TextAnalyzer::kw와 동일: CATEGORY_KEYWORDS[cat]["main"] 기준
 inline std::vector<Feedback> getMainCategoryMatches(const std::vector<Feedback>& feedbacks,
                                                       const std::string& category) {
     std::vector<Feedback> result;
-    if (!Constants::CATEGORY_KEYWORDS.count(category)) {
-        return result;
-    }
-    const auto& mainKeywords = Constants::CATEGORY_KEYWORDS.at(category).at("main");
     for (const auto& feedback : feedbacks) {
-        if (KeywordUtils::containsAny(feedback.getText(), mainKeywords)) {
+        if (FeedbackClassifier::matchCategory(feedback.getText(), category)) {
             result.push_back(feedback);
         }
     }

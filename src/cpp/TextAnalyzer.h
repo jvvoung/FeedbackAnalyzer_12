@@ -4,8 +4,8 @@
 #include <map>
 #include "Feedback.h"
 #include "Constants.h"
-#include "KeywordUtils.h"
-#include "SentimentClassifier.h"
+#include "FeedbackClassifier.h"
+#include "KeywordRegistry.h"
 
 class TextAnalyzer {
 private:
@@ -20,7 +20,7 @@ public:
         res[u8"부정"] = 0;
 
         for (const auto& f : feedbacks) {
-            res[SentimentClassifier::classify(f.getText())]++;
+            res[FeedbackClassifier::classifySentiment(f.getText())]++;
         }
 
         globalSent = res;
@@ -29,19 +29,15 @@ public:
 
     std::map<std::string, int> kw(const std::vector<Feedback>& feedbacks) {
         std::map<std::string, int> res2;
-        for (const auto& entry : Constants::CATEGORY_KEYWORDS) {
-            res2[entry.first] = 0;
+        for (const auto& cat : KeywordRegistry::categoryNames()) {
+            res2[cat] = 0;
         }
 
         for (const auto& f : feedbacks) {
-            std::string txt = f.getText();
-            for (const auto& entry : Constants::CATEGORY_KEYWORDS) {
-                const std::string& cat = entry.first;
-                if (entry.second.count("main")) {
-                    const auto& kws = entry.second.at("main");
-                    if (KeywordUtils::containsAny(txt, kws)) {
-                        res2[cat]++;
-                    }
+            const std::string& txt = f.getText();
+            for (const auto& cat : KeywordRegistry::categoryNames()) {
+                if (FeedbackClassifier::matchCategory(txt, cat)) {
+                    res2[cat]++;
                 }
             }
         }
