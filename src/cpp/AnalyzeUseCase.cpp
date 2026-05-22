@@ -1,5 +1,6 @@
 #include "AnalyzeUseCase.h"
 
+#include "AppMessages.h"
 #include "Logger.h"
 
 AnalyzeResult AnalyzeUseCase::analyzeAll(std::vector<Feedback>& feedbacks, const std::string& text) {
@@ -18,7 +19,7 @@ AnalyzeResult AnalyzeUseCase::analyzeAll(std::vector<Feedback>& feedbacks, const
     }
 
     Logger::logInfo(u8"현재 " + std::to_string(feedbacks.size()) + u8"개의 피드백이 입력되었습니다.");
-    result.successMessage = std::to_string(feedbacks.size()) + u8"개의 피드백이 입력되었습니다.";
+    result.successMessage = AppMessages::feedbackCountSuccess(feedbacks.size());
 
     if (!feedbacks.empty()) {
         result.sentimentResults = analyzer_.sent(feedbacks);

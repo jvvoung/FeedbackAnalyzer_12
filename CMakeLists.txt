@@ -13,6 +13,9 @@ add_executable(feedback_analyzer
     src/cpp/AppState.cpp
     src/cpp/FormParser.cpp
     src/cpp/CsvParser.cpp
+    src/cpp/AppMessages.cpp
+    src/cpp/HtmlPageRenderer.cpp
+    src/cpp/CsvExporter.cpp
     src/cpp/Logger.cpp
     src/cpp/Session.cpp
     src/cpp/TextAnalyzer.cpp
