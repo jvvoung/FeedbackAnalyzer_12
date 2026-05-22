@@ -101,12 +101,9 @@ CsvParseResult CsvParser::parse(const std::string& csvContent) {
     }
 
     const auto headerFields = parseLine(records[0]);
-    std::size_t textIndex = findTextColumnIndex(headerFields);
-
-    // RED(H-2): text 컬럼 없으면 첫 번째 컬럼 사용 — AC-2 위반, T-05 failing
-    const bool useFallbackFirstColumn = (textIndex == static_cast<std::size_t>(-1));
-    if (useFallbackFirstColumn) {
-        textIndex = 0;
+    const std::size_t textIndex = findTextColumnIndex(headerFields);
+    if (textIndex == static_cast<std::size_t>(-1)) {
+        return result;
     }
 
     for (std::size_t row = 1; row < records.size(); ++row) {

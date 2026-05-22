@@ -230,9 +230,17 @@ static std::vector<std::string> parseCsvLine(const std::string& line) {
     return fields;
 }
 
+static std::size_t findTextColumnIndex(const std::vector<std::string>& headerFields) {
+    for (std::size_t i = 0; i < headerFields.size(); ++i) {
+        if (headerFields[i] == "text") {
+            return i;
+        }
+    }
+    return static_cast<std::size_t>(-1);
+}
+
 int main() {
     Constants::init();
-    Filters::initFilterKeywords();
 
     httplib::Server svr;
 
@@ -296,14 +304,26 @@ int main() {
                     std::istringstream stream(file.content);
                     std::string line;
                     bool firstLine = true;
+                    std::size_t textIndex = static_cast<std::size_t>(-1);
                     while (std::getline(stream, line)) {
                         if (!line.empty() && line.back() == '\r') line.pop_back();
-                        if (firstLine) { firstLine = false; continue; }
-                        if (line.empty()) continue;
-                        auto fields = parseCsvLine(line);
-                        if (!fields.empty() && !fields[0].empty()) {
-                            feedbacks.push_back(Feedback(fields[0]));
+                        if (firstLine) {
+                            firstLine = false;
+                            textIndex = findTextColumnIndex(parseCsvLine(line));
+                            continue;
                         }
+                        if (line.empty()) continue;
+                        if (textIndex == static_cast<std::size_t>(-1)) continue;
+                        auto fields = parseCsvLine(line);
+                        if (fields.size() > textIndex && !fields[textIndex].empty()) {
+                            feedbacks.push_back(Feedback(fields[textIndex]));
+                        }
+                    }
+                    if (textIndex == static_cast<std::size_t>(-1)) {
+                        Logger::logError(u8"CSV에 text 컬럼이 없습니다.");
+                        std::string html = renderPage("", "", u8"파일 업로드 중 오류가 발생했습니다.", {}, {}, feedbacks);
+                        res.set_content(html, "text/html; charset=UTF-8");
+                        return;
                     }
                     Logger::logInfo(u8"파일이 성공적으로 업로드되었습니다.");
                 }
@@ -354,6 +374,12 @@ int main() {
 
     // GET /download
     svr.Get("/download", [](const httplib::Request&, httplib::Response& res) {
+        if (fil_data.empty()) {
+            Logger::logWarning(u8"다운로드할 필터 결과가 없습니다.");
+            std::string html = renderPage("", u8"다운로드할 필터 결과가 없습니다.", "", {}, {}, {});
+            res.set_content(html, "text/html; charset=UTF-8");
+            return;
+        }
         std::ostringstream csv;
         // UTF-8 BOM
         csv << "\xEF\xBB\xBF";
