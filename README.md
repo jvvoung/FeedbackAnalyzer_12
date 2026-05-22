@@ -19,6 +19,7 @@
 - [아키텍처](#아키텍처)
 - [프로젝트 구조](#프로젝트-구조)
 - [테스트 실행](#테스트-실행)
+- [RED 단계 To-Do 리스트](#red-단계-to-do-리스트)
 - [설정 및 데이터](#설정-및-데이터)
 - [출력 포맷](#출력-포맷)
 - [알려진 이슈 (Known Issues)](#알려진-이슈-known-issues)
@@ -32,7 +33,7 @@
 
 ### 이 프로젝트가 해결하는 문제
 
-Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리케이션이다. 현재 코드베이스에는 아래 문제가 존재하며, 본 프로젝트는 이를 식별·개선하는 학습 경험을 제공한다. (근거: `docs/PRD.md` §1.2, `docs/analysis.md` §6)
+Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리케이션이다. 현재 코드베이스에는 아래 문제가 존재하며, 본 프로젝트는 이를 식별·개선하는 학습 경험을 제공한다. (근거: `docs/PRD.md` §1.2, `docs/analysis.md` §1~§3)
 
 | 문제 | 설명 |
 |------|------|
@@ -48,7 +49,7 @@ Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리�
 | **SRP (단일 책임 원칙)** | Controller / Service / View / State 계층 분리 | `docs/PRD.md` §4.2 |
 | **관심사 분리** | HTML·라우트·비즈니스 로직·파일 I/O 분리 | `project_purpose.md` §1.3 |
 | **TDD** | Given-When-Then 단위 테스트 → Green 상태에서 리팩토링 | `.cursorrules` §5 |
-| **점진적 리팩토링** | Extract Function/Class, 최소 diff, Phase별 단계 진행 | `docs/PRD.md` §1.3 G-4, `docs/analysis.md` §8 |
+| **점진적 리팩토링** | Extract Function/Class, 최소 diff, Phase별 단계 진행 | `docs/PRD.md` §1.3 G-4, `docs/analysis.md` 부록 C |
 
 **측정 가능 목표:** HTTP 5엔드포인트 계약 유지, P0 버그 회귀 0건, Service 계층 커버리지 ≥ 90%, `main.cpp` ≤ 200줄 (Phase 2 이후). (`docs/PRD.md` §1.3)
 
@@ -62,7 +63,7 @@ Feedback Analyzer는 **리팩토링 챌린지**용 레거시 C++ 웹 애플리�
 | **Phase 4** | Logger UI·download·gitignore | level별 alert, 다운로드 대상 명확화 |
 | **Phase 5** (선택) | Trend·File DB | `test_feedback_trend.csv` 시각화, 감정 키워드 File DB |
 
-상세 분석: [`docs/analysis.md`](docs/analysis.md) · 요구사항 명세: [`docs/PRD.md`](docs/PRD.md)
+상세 분석: [`docs/analysis.md`](docs/analysis.md) (v2.0 QA·코드 스멜 통합) · 테스트 계획: [`docs/test_plan.md`](docs/test_plan.md) · 요구사항: [`docs/PRD.md`](docs/PRD.md)
 
 ---
 
@@ -106,14 +107,14 @@ build\feedback_analyzer.exe
 
 1. textarea에 `배송이 너무 늦어요. 화가 납니다.` 입력 → **입력하기** (POST `/analyze`)
 2. **분석 결과** stat에서 감정(부정) · 키워드(배송) 건수 확인
-3. 감정=`부정`, 키워드=`배송` 선택 → **분  석** (POST `/filter`)
+3. 감정=`부정`, 키워드=`배송` 선택 → **필터 적용** (POST `/filter`)
 4. **결과 다운로드** 클릭 (GET `/download`) → `filtered_feedback.csv` 수신
 
 ---
 
 ## HTTP API 개요
 
-근거: `docs/PRD.md` §3.2 F-01~F-05, `docs/analysis.md` §4.1
+근거: `docs/PRD.md` §3.2 F-01~F-05, `docs/analysis.md` 부록 B.4
 
 | Method | Path | 역할 | Content-Type |
 |--------|------|------|--------------|
@@ -141,16 +142,16 @@ build\feedback_analyzer.exe
 
 ### 키워드 카테고리 (Category Keyword)
 
-| 카테고리 | 라벨 (UTF-8) | 매칭 규칙 (목표) | Constants 출처 |
+| 카테고리 | 라벨 (UTF-8) | 판정 규칙 (목표) | Constants 출처 |
 |----------|--------------|------------------|----------------|
-| 배송 | `배송` | `CATEGORY_KEYWORDS["배송"]["main"]` 및 `sub` 키워드 | `Constants::CATEGORY_KEYWORDS` |
-| 품질 | `품질` | 동일 | `Constants::CATEGORY_KEYWORDS` |
-| 가격 | `가격` | 동일 | `Constants::CATEGORY_KEYWORDS` |
-| 서비스 | `서비스` | 동일 | `Constants::CATEGORY_KEYWORDS` |
-| 사용성 | `사용성` | 동일 | `Constants::CATEGORY_KEYWORDS` |
+| 배송 | `배송` | `CATEGORY_KEYWORDS["배송"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 품질 | `품질` | `CATEGORY_KEYWORDS["품질"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 가격 | `가격` | `CATEGORY_KEYWORDS["가격"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 서비스 | `서비스` | `CATEGORY_KEYWORDS["서비스"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
+| 사용성 | `사용성` | `CATEGORY_KEYWORDS["사용성"]["main"]` 키워드 포함 | `Constants::CATEGORY_KEYWORDS` |
 
-- **`main` 키워드:** 집계·필터 공통 매칭 기준 (예: `배송`, `택배`, `배달`)
-- **`sub` 키워드:** 세부 분류 (예: `배송` → `time`, `type`, `status`)
+- **`main` 키워드:** 집계·필터 공통 매칭 기준 (예: `배송` → `배송`, `택배`, `배달`)
+- **`sub` 키워드:** Constants 내부 세부 분류용 (`time`, `type`, `status` 등) — 집계·필터 매칭에는 사용하지 않음
 - **품질 카테고리 ≠ 감정:** `품질`/`서비스` 키워드와 감정 3분류를 혼동하지 않음 (`.cursorrules` §3)
 
 ### 필터 sentinel
@@ -207,7 +208,7 @@ text
 |---|-------------|-----------|
 | 1 | `sentiment=중립&keyword=전체` | 중립 분류 피드백 subset + 집계 stat |
 | 2 | `sentiment=전체&keyword=배송` | 배송 카테고리 피드백 subset + 집계 stat |
-| 3 | `sentiment=부정&keyword=배송` | 부정 **且** 배송 교집합 + 다운로드 버튼 표시 |
+| 3 | `sentiment=부정&keyword=배송` | 부정 **및** 배송 교집합 + 다운로드 버튼 표시 |
 
 #### 비정상 케이스
 
@@ -245,29 +246,32 @@ text
 
 ## 아키텍처
 
-### 계층 다이어그램 (As-Is)
+### 계층 다이어그램
+
+**As-Is (현재):**
 
 ```mermaid
 flowchart TB
     Browser["Browser"]
-    Main["main.cpp\n(Route + HTML + CSV Parse)"]
+    Main["Route Handlers\n(main.cpp)"]
     TA["TextAnalyzer"]
     F["Filters"]
     C["Constants"]
-    S["Session"]
-    UI["UIComponents"]
+    S["Session\n(AppState)"]
+    HR["HtmlRenderer\n(renderPage in main.cpp)"]
 
     Browser --> Main
     Main --> TA
     Main --> F
     Main --> S
-    Main --> UI
+    Main --> HR
     TA --> C
     F --> C
     F -.->|"S_KEYWORDS (중복)"| F
+    HR --> S
 ```
 
-### To-Be (Phase 2~3 목표)
+**To-Be (Phase 2~3 목표):**
 
 ```mermaid
 flowchart TB
@@ -276,15 +280,15 @@ flowchart TB
     HR["HtmlRenderer"]
     TA["TextAnalyzer"]
     F["Filters"]
-    AS["AppState / Session"]
+    AS["Session / AppState"]
     C["Constants"]
     FB["Feedback"]
 
     Browser --> RH
-    RH --> HR
     RH --> TA
     RH --> F
     RH --> AS
+    RH --> HR
     TA --> C
     TA --> FB
     F --> C
@@ -305,7 +309,7 @@ flowchart TB
 
 1. `src/cpp/Constants.cpp` — `Constants::init()`에 `CATEGORY_KEYWORDS[u8"새카테고리"]["main"]` 및 `sub` 키워드 등록
 2. `src/cpp/UIComponents.cpp` — `UIComponents::CATS` 벡터에 `u8"새카테고리"` 추가
-3. 단위 테스트 — 집계·필터에 새 카테고리 반영 확인
+3. 단위 테스트 — 집계·필터에 새 카테고리 `main` 키워드 반영 확인
 4. **변경 금지:** `httplib.h`, HTTP 5엔드포인트 path/method, 감정 3분류 라벨
 
 > **원칙:** 카테고리 추가 시 `Constants::CATEGORY_KEYWORDS` + `UIComponents::CATS` **2곳만** 변경 (Shotgun Surgery 방지, `docs/PRD.md` §4.4)
@@ -320,7 +324,7 @@ flowchart TB
 
 ## 프로젝트 구조
 
-근거: `docs/analysis.md` §3 (tests/는 Phase 1 목표)
+근거: `docs/analysis.md` 부록 B.3 (`tests/`는 Phase 1 목표)
 
 ```
 FeedbackAnalyzer_12/
@@ -330,7 +334,8 @@ FeedbackAnalyzer_12/
 ├── .cursorrules
 ├── docs/
 │   ├── PRD.md              # 제품 요구사항 명세
-│   └── analysis.md         # 코드베이스 분석·Phase 로드맵
+│   ├── analysis.md         # QA·코드 스멜 통합 분석 (v2.0)
+│   └── test_plan.md        # TDD 테스트 계획·AC 매핑
 ├── tests/                  # (Phase 1 목표) Google Test
 │   ├── TextAnalyzerTest.cpp
 │   ├── FiltersTest.cpp
@@ -343,7 +348,7 @@ FeedbackAnalyzer_12/
     ├── Filters.h/cpp       # 필터링
     ├── Constants.h/cpp     # 감정·카테고리 키워드 상수
     ├── Session.h/cpp       # 인메모리 세션 상태
-    ├── UIComponents.h/cpp # UI 카테고리 목록
+    ├── UIComponents.h/cpp  # UI 카테고리 목록
     ├── Logger.h/cpp        # 콘솔 로깅
     └── FileHandler.h       # (Lava Flow) 정리 대상
 ```
@@ -356,11 +361,11 @@ FeedbackAnalyzer_12/
 
 | 항목 | 상태 |
 |------|------|
-| Google Test | **미구성** (`docs/analysis.md` §5.3) |
+| Google Test | **미구성** (`docs/analysis.md` §2.1.4, 부록 B.6) |
 | CMake `enable_testing()` | **미구성** |
 | 단위 테스트 파일 | **0건** |
 
-→ **Phase 1 목표:** GTest + CMake 테스트 타깃 추가 후 P0 버그 수정 (`docs/analysis.md` §8 Phase 1)
+→ **Phase 1 목표:** GTest + CMake 테스트 타깃 추가 후 P0 버그 수정 (`docs/analysis.md` 부록 C Phase 1, `docs/test_plan.md` §8)
 
 ### 목표 실행 방법 (Phase 1 이후)
 
@@ -381,7 +386,47 @@ ctest --test-dir build --output-on-failure
 
 도구: gcov/lcov 또는 동등 (`docs/PRD.md` §4.3, `.cursorrules` §5)
 
-**경계값 테스트 필수:** 빈 입력, 단일 피드백, `중립`만 해당, `전체` 필ter, `text` 컬럼 없는 CSV, main 키워드만 포함 피드백 (`docs/PRD.md` §4.3)
+**경계값 테스트 필수:** 빈 입력, 단일 피드백, `중립`만 해당, `전체` 필터, `text` 컬럼 없는 CSV, main 키워드만 포함 피드백 (`docs/PRD.md` §4.3)
+
+---
+
+## RED 단계 To-Do 리스트
+
+> 이 체크리스트는 docs/test_plan.md 기반으로 생성되었습니다.
+> 각 항목은 RED(실패 테스트 작성) 완료 시 체크합니다.
+> Phase 1: T-03, T-05, T-06 failing test → H-1/H-2/H-3 수정 → Green.
+
+### Track A — HTTP / Boundary 테스트 (수동·스모크)
+- [ ] TC-A-01: POST `/analyze` — `text=배송이 너무 늦어요. 화가 납니다.` → 감정 stat 부정 +1, 키워드 stat 배송 +1 (Happy Path, T-02)
+- [ ] TC-A-02: POST `/analyze` — `text=` 또는 공백만 → 피드백 미추가, 기존 건수 유지 (T-08)
+- [ ] TC-A-03: Session 비어 있을 때 POST `/filter` → warning `분석할 피드백이 없습니다.` (T-09)
+- [ ] TC-A-04: 필터 조건 불일치 → warning `필터링 결과가 없습니다.` (T-10)
+- [ ] TC-A-05: GET `/download` 필터 미실행 → BOM + `text\n` 헤더만, 데이터 0건 (EX-04, M-6)
+- [ ] TC-A-06: POST `/upload` — CSV `text` 컬럼 없음 (`id,comment`) → error `파일 업로드 중 오류가 발생했습니다.` (T-05, EX-06)
+- [ ] TC-A-07: textarea 개행 입력 → analyze → filter → download 시 `\n` 유지 (T-11, AC-7)
+- [ ] TC-A-08: 부록 A HTTP-S-01~05 엔드포인트 회귀 체크리스트 (AC-5)
+
+### Track B — Domain / Service 단위 테스트 (Google Test)
+- [ ] TC-B-01: T-01 — 빈 Feedback 목록 → analyzeSentiment → 긍정=0, 중립=0, 부정=0
+- [ ] TC-B-02: T-03 / AC-1 / H-1 — `text="그냥 그래요. 특별한 감정 없음."` → filter sentiment=중립 → TextAnalyzer 중립 집합과 100% 일치
+- [ ] TC-B-03: T-04 — sentiment=전체, keyword=전체 → 입력 전체 반환
+- [ ] TC-B-04: T-05 / AC-2 / H-2 — CSV `id,comment\n1,hello` → `text` 컬럼 파싱, fields[0] 사용 금지
+- [ ] TC-B-05: T-06 / AC-3 / H-3 — `text="택배가 빨라요."` → filter keyword=배송 → 1건 포함 (main 키워드)
+- [ ] TC-B-06: T-07 — `text="품질이 별로예요."` → analyzeSentiment=중립 (카테고리≠감정 분리)
+- [ ] TC-B-07: EX-09 — 긍정·부정 키워드 동시 포함 → 긍정 우선 (판정 순서 F-06)
+- [ ] TC-B-08: Filters·TextAnalyzer — `Constants::SENTIMENT_KEYWORDS` 단일 소스 사용 (EX-01, M-7)
+
+### 커버리지 목표
+- [ ] TextAnalyzer / Filters / CsvParser / Feedback: 각 ≥ 90% (PRD §4.3, AC-4)
+- [ ] Domain (Service) stretch: ≥ 95% (# gcov / lcov, `docs/test_plan.md` §6.2)
+- [ ] Boundary (T-01~T-11, EX-01~EX-10): ≥ 85%+
+- [ ] HTTP 핸들러 (main.cpp): 90% 목표 아님 — 부록 A 체크리스트로 검증
+
+### 결함 목록 연결
+- [x] docs/defect_list.md 생성 — H-1(중립 필터), H-2(CSV text), H-3(main 키워드), H-4(테스트 부재) 기록
+- [x] 각 결함에 test_plan ID(T-03/T-05/T-06) 및 failing test명 연결
+- [ ] H-1/H-2/H-3 수정 후 `ctest --test-dir build --output-on-failure` Green 확인
+- [ ] Phase 1 Green 직후 lcov baseline 수립 (`docs/test_plan.md` §7.4)
 
 ---
 
@@ -392,7 +437,7 @@ ctest --test-dir build --output-on-failure
 | 항목 | 방식 | 근거 |
 |------|------|------|
 | 키워드·감정 상수 | `Constants::init()` 하드코딩 | `docs/PRD.md` §5.1 |
-| application.yml | **없음** | `docs/analysis.md` §5.4 |
+| application.yml | **없음** | `docs/analysis.md` 부록 B.2 |
 | 서버 포트 | `8080` 소스 하드코딩 | `docs/PRD.md` §3.3 C-05 |
 
 ### 세션·상태
@@ -400,7 +445,7 @@ ctest --test-dir build --output-on-failure
 | 상태 | 저장소 | 용도 |
 |------|--------|------|
 | 전체 피드백 | `Session::currentFeedbacks` | POST `/analyze`, `/upload` 누적 |
-| 마지막 필터 결과 | `fil_data` (→ Phase 3 `AppState`) | GET `/download` 소스 |
+| 마지막 필터 결과 | `fil_data` (→ Phase 3 `AppState::lastFilteredFeedbacks`) | GET `/download` 소스 |
 
 ### (선택 Phase 5) File DB
 
@@ -408,8 +453,8 @@ ctest --test-dir build --output-on-failure
 |------|------|
 | 저장 대상 | `Constants::SENTIMENT_KEYWORDS` (긍정/중립/부정) |
 | 저장 위치 | `data/sentiment_keywords.json` (또는 `.csv`) |
-| 기동 시 | 파일 존재 → 로드; 없음 → 기본값 생성 |
-| CRUD | 웹 UI 또는 CLI로 키워드 추가·삭제 |
+| 기동 시 | 파일 존재 → 로드; 없음 → `Constants::init()` 기본값 + 파일 생성 |
+| CRUD | 웹 UI 또는 CLI로 키워드 추가·삭제; 변경 후 `/filter`·집계에 즉시 반영 |
 
 근거: `docs/PRD.md` §5.4, `project_purpose.md` §6.1-7
 
@@ -455,7 +500,7 @@ text
 
 | 항목 | 내용 |
 |------|------|
-| 입력 | `test_feedback_trend.csv` |
+| 입력 | `test_feedback_trend.csv` (프로젝트 루트 또는 `data/`) |
 | 차트 | 시계열 선 그래프 (X: 날짜/순번, Y: 감정·카테고리 건수) |
 | 출력 | HTML 대시보드 "Trend" 섹션 |
 
@@ -465,16 +510,16 @@ text
 
 ## 알려진 이슈 (Known Issues)
 
-근거: `docs/analysis.md` §6.1 — **Phase 1에서 수정 예정**
+근거: `docs/analysis.md` §2.1 — **Phase 1에서 수정 예정**. 재현 시나리오: [`docs/analysis.md` §2.1](docs/analysis.md#21-p0--반드시-잡아야-할-기능-결함), [`docs/test_plan.md` §2](docs/test_plan.md#2-대표-샘플-예제--ac-1--h-1-중립-필터-일치)
 
 | ID | 문제 요약 | 영향 | 심각도 |
 |----|-----------|------|--------|
-| **H-1** | "중립" 필터: TextAnalyzer는 긍정/부정 미매칭 시 중립, Filters는 중립 키워드 필요 — **결과 불일치** | 기능 오류 | **High** |
+| **H-1** | "중립" 필터: TextAnalyzer는 긍정/부정 미매칭 시 중립, Filters는 중립 키워드 필요 — **결과 불일치** (예: `괜찮아요`) | 기능 오류 | **High** |
 | **H-2** | CSV 업로드: README `text` 컬럼 명세와 달리 `fields[0]`만 사용 | 기능 오류 | **High** |
-| **H-3** | 키워드 필터: `main` 키워드 skip, 집계는 `main`만 사용 — **동작 불일치** | 기능 오류 | **High** |
+| **H-3** | 키워드 필터: `main` 키워드 skip, 집계는 `main`만 사용 — **동작 불일치** (예: `품질이 좋습니다`) | 기능 오류 | **High** |
 | **H-4** | 테스트 인프라 전무 (Google Test 미구성) | 회귀 방지 불가 | **High** |
 
-기타 Medium 이슈(God Function, 전역 상태, Logger UI 미연동 등): [`docs/analysis.md`](docs/analysis.md) §6.2 참조.
+기타 Medium·Low 이슈(God Function, 전역 상태, Logger UI 미연동 등): [`docs/analysis.md`](docs/analysis.md) §3 참조.
 
 ---
 
@@ -539,7 +584,7 @@ text
 
 다음 변경 시 **`docs/PRD.md` 개정 없이 merge 금지** (`docs/PRD.md` §7.2):
 
-- HTTP 5엔드포인트 path/method
+- HTTP 5엔드포인트 path/method (`/`, `/analyze`, `/upload`, `/filter`, `/download`)
 - 감정 3분류 라벨 (`긍정`, `중립`, `부정`)
 - CSV 출력 BOM·`text\n` 헤더 형식
 
@@ -548,7 +593,8 @@ text
 | 문서 | 용도 |
 |------|------|
 | [`docs/PRD.md`](docs/PRD.md) | 기능·계약·인수 기준 |
-| [`docs/analysis.md`](docs/analysis.md) | 현황 분석·Phase 로드맵 |
+| [`docs/analysis.md`](docs/analysis.md) | QA·코드 스멜 통합 분석·Phase 로드맵 (v2.0) |
+| [`docs/test_plan.md`](docs/test_plan.md) | TDD 테스트 계획·Given-When-Then·AC 매핑 |
 | [`project_purpose.md`](project_purpose.md) | 학습 목표·코드 스멜 |
 | [`.cursorrules`](.cursorrules) | Cursor AI 작업 규칙 |
 
