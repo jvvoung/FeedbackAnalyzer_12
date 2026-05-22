@@ -241,7 +241,6 @@ static std::size_t findTextColumnIndex(const std::vector<std::string>& headerFie
 
 int main() {
     Constants::init();
-    Filters::initFilterKeywords();
 
     httplib::Server svr;
 

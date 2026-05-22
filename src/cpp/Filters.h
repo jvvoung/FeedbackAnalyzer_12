@@ -16,8 +16,6 @@ private:
     }
 
 public:
-    static void initFilterKeywords();
-
     std::vector<Feedback> fil(const std::vector<Feedback>& dataList,
                               const std::string& sFilter,
                               const std::string& kFilter) {
