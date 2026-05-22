@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <cstdlib>
 #include <string>
 
-#include "golden/DomainGoldenCapture.h"
+#include "support/GoldenMaster.h"
 
 #ifndef GOLDEN_DIR
 #define GOLDEN_DIR "tests/golden"
@@ -15,41 +14,59 @@ std::string domainGoldenExpectedPath() {
     return std::string(GOLDEN_DIR) + "/domain_golden_expected.txt";
 }
 
+void assertMatchesGoldenSection(const std::string& sectionId, const std::string& actual) {
+    const std::string goldenFile = golden::readFile(domainGoldenExpectedPath());
+    ASSERT_FALSE(goldenFile.empty()) << "Missing golden file: " << domainGoldenExpectedPath();
+
+    const std::string expected = golden::loadGoldenSection(goldenFile, sectionId);
+    ASSERT_FALSE(expected.empty()) << "Missing section [" << sectionId << "] in golden file";
+
+    std::string diff;
+    const bool matches =
+        golden::compareGoldenSection(sectionId, expected, actual, &diff);
+    if (!matches) {
+        ADD_FAILURE() << diff;
+    }
+    EXPECT_TRUE(matches);
+}
+
 }  // namespace
 
-class DomainGoldenMasterTest : public ::testing::Test {
+class GoldenMasterTest : public ::testing::Test {
 protected:
     void SetUp() override { Constants::init(); }
 };
 
-// Given-When-Then
-// Given: test_plan §2·§4 Domain 시나리오 GM-D-01~04 입력
-// When:  DomainGoldenCapture 직렬화 (타임스탬프·랜덤값 제외)
-// Then:  tests/golden/domain_golden_expected.txt 와 바이트 단위 일치
-TEST_F(DomainGoldenMasterTest, Given_DomainScenarios_When_Capture_Then_MatchesGoldenFile) {
-    const std::string actual = golden::captureAllDomainGolden();
-    const std::string expected = golden::readFile(domainGoldenExpectedPath());
-
-    ASSERT_FALSE(expected.empty()) << "Missing golden file: " << domainGoldenExpectedPath();
-    EXPECT_EQ(expected, actual) << "Domain golden mismatch. "
-                               << "Set UPDATE_GOLDEN=1 and run GoldenMasterCapture to refresh.";
+// GM-TC-01 (GM-D-01): T-02, TC-A-01 — negative delivery analyze maps
+TEST_F(GoldenMasterTest, GM_D01_AnalyzeNegativeDelivery_MatchesGolden) {
+    assertMatchesGoldenSection("GM-D-01", golden::captureGmD01Body());
 }
 
-// 1회 실행용 캡처 — UPDATE_GOLDEN=1 일 때만 기준 파일 갱신
-//   ctest -R GoldenMasterCapture --test-dir build
-//   UPDATE_GOLDEN=1 ctest -R GoldenMasterCapture --test-dir build
-TEST(DomainGoldenMasterCapture, GoldenMasterCapture) {
+// GM-TC-02 (GM-D-02): T-03, AC-1, TC-B-02 — neutral filter
+TEST_F(GoldenMasterTest, GM_D02_FilterNeutral_MatchesGolden) {
+    assertMatchesGoldenSection("GM-D-02", golden::captureGmD02Body());
+}
+
+// GM-TC-03 (GM-D-03): T-06, TC-B-05 — CSV text column parse
+TEST_F(GoldenMasterTest, GM_D03_CsvParseTextColumn_MatchesGolden) {
+    assertMatchesGoldenSection("GM-D-03", golden::captureGmD03Body());
+}
+
+// GM-TC-04 (GM-D-04): T-04, TC-B-03 — filter all sentiment/keyword
+TEST_F(GoldenMasterTest, GM_D04_FilterAll_MatchesGolden) {
+    assertMatchesGoldenSection("GM-D-04", golden::captureGmD04Body());
+}
+
+// Optional: GOLDEN_UPDATE=1 → regenerate domain_golden_expected.txt (local only, not CI)
+TEST(GoldenMasterCapture, UpdateGoldenFile_WhenGoldenUpdateEnvSet) {
     Constants::init();
-    const char* updateFlag = std::getenv("UPDATE_GOLDEN");
-    if (updateFlag == nullptr || std::string(updateFlag) != "1") {
-        GTEST_SKIP() << "Set UPDATE_GOLDEN=1 to regenerate domain_golden_expected.txt";
+    if (!golden::goldenUpdateEnabled()) {
+        GTEST_SKIP() << "Set GOLDEN_UPDATE=1 to regenerate domain_golden_expected.txt";
     }
 
-    const std::string captured = golden::captureAllDomainGolden();
     const std::string path = domainGoldenExpectedPath();
-    ASSERT_TRUE(golden::writeFile(path, captured))
-        << "Failed to write golden file: " << path;
+    ASSERT_TRUE(golden::updateGoldenFile(path)) << "Failed to write: " << path;
 
     const std::string roundTrip = golden::readFile(path);
-    EXPECT_EQ(captured, roundTrip);
+    EXPECT_EQ(golden::buildGoldenFile(), roundTrip);
 }

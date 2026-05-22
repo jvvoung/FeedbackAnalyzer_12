@@ -73,3 +73,11 @@ endif()
 
 include(GoogleTest)
 gtest_discover_tests(feedback_analyzer_tests)
+
+add_test(NAME GoldenMaster
+    COMMAND feedback_analyzer_tests --gtest_filter=GoldenMasterTest.*
+)
+set_tests_properties(GoldenMaster PROPERTIES
+    LABELS "golden;domain"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
