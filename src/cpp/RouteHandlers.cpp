@@ -58,19 +58,22 @@ void RouteHandlers::handlePostUpload(const httplib::Request& req, httplib::Respo
         auto& feedbacks = FeedbackSession::getCurrent();
         if (req.form.has_file("file")) {
             const auto file = req.form.get_file("file");
-            if (!file.content.empty()) {
-                CsvParser parser;
-                const CsvParseResult parseResult = parser.parse(file.content);
-                if (!parseResult.hasTextColumn) {
-                    Logger::logError(u8"CSV에 text 컬럼이 없습니다.");
-                    setHtmlResponse(res, {"", "", AppMessages::uploadError(), {}, {}});
-                    return;
-                }
-                for (const auto& feedback : parseResult.feedbacks) {
-                    feedbacks.push_back(feedback);
-                }
-                Logger::logInfo(u8"파일이 성공적으로 업로드되었습니다.");
+            if (file.content.empty()) {
+                setHtmlResponse(res, {"", "", AppMessages::uploadError(), {}, {}});
+                return;
             }
+
+            CsvParser parser;
+            const CsvParseResult parseResult = parser.parse(file.content);
+            if (!parseResult.hasTextColumn) {
+                Logger::logError(u8"CSV에 text 컬럼이 없습니다.");
+                setHtmlResponse(res, {"", "", AppMessages::uploadError(), {}, {}});
+                return;
+            }
+            for (const auto& feedback : parseResult.feedbacks) {
+                feedbacks.push_back(feedback);
+            }
+            Logger::logInfo(u8"파일이 성공적으로 업로드되었습니다.");
         }
         setHtmlResponse(res, {AppMessages::feedbackCountSuccess(feedbacks.size()), "", "", {}, {}});
     } catch (const std::exception& e) {

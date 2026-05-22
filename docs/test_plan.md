@@ -99,7 +99,7 @@ sentiment=중립&keyword=전체
 |-------------|-----------|-------------|
 | 감정 분류 | `analyzeSentiment` (또는 `sent`) | T-01, T-03, T-07 |
 | 키워드 집계 | `analyzeKeywords` (또는 `kw`) | T-06, T-07 |
-| 판정 순서 | 긍정 → 부정 → 중립 | 긍정·부정 동시 포함 시 긍정 우선 |
+| 판정 순서 | 가중치 스코어링 (`classifyWeighted`) | 긍·부 동점 → **중립**; `positive > negative` → 긍정 |
 | Constants 연동 | `SENTIMENT_KEYWORDS`, `CATEGORY_KEYWORDS["main"]` | H-1, H-3 수정 후 단일 소스 |
 
 ### 3.3 1순위 — Filters (Phase 1)
@@ -158,10 +158,10 @@ PRD §4.3 T-01~T-07 및 `README.md` §입력·출력 계약을 반영한다.
 
 | ID | Given | When | Then | AC | 레이어 | 검증 |
 |----|-------|------|------|-----|--------|------|
-| **T-08** | Session에 기존 N건 | POST `/analyze`, `text=` 또는 공백만 | 피드백 미추가, 건수 N 유지 | — | HTTP / Handler | 수동·스모크 |
-| **T-09** | Session 비어 있음 | POST `/filter` | warning: `분석할 피드백이 없습니다.` | — | HTTP / Handler | 수동·Phase 4 |
-| **T-10** | Feedback 있으나 조건 불일치 | POST `/filter` | warning: `필터링 결과가 없습니다.` | — | HTTP / Handler | 수동·Phase 4 |
-| **T-11** | `text="첫 줄\n두 번째 줄"` | analyze → filter → GET `/download` | Session·CSV 본문에 개행(`\n`) 유지 | **AC-7** | E2E | 수동·Phase 4 |
+| **T-08** | Session에 기존 N건 | POST `/analyze`, `text=` 또는 공백만 | 피드백 미추가, 건수 N 유지 | — | `BoundaryUseCaseTest`, `RouteHandlersBoundaryTest` | **P1** |
+| **T-09** | Session 비어 있음 | POST `/filter` | warning: `분석할 피드백이 없습니다.` | — | `BoundaryUseCaseTest`, `RouteHandlersBoundaryTest` | **P1** |
+| **T-10** | Feedback 있으나 조건 불일치 | POST `/filter` | warning: `필터링 결과가 없습니다.` | — | `BoundaryUseCaseTest`, `RouteHandlersBoundaryTest` | **P1** |
+| **T-11** | `text="첫 줄\n두 번째 줄"` | analyze → filter → GET `/download` | Session·CSV 본문에 개행(`\n`) 유지 | **AC-7** | `BoundaryUseCaseTest`, `RouteHandlersBoundaryTest` | **P1** |
 
 ### 4.3 Given-When-Then 상세 — P0 케이스
 
@@ -194,12 +194,12 @@ PRD §4.3 T-01~T-07 및 `README.md` §입력·출력 계약을 반영한다.
 | **EX-01** | TextAnalyzer vs Filters 감정 키워드 이중 관리 (`S_KEYWORDS`) | 중립 판정 불일치 | `Constants::SENTIMENT_KEYWORDS` 단일 소스 | T-03, AC-1 | 1 |
 | **EX-02** | CSV `fields[0]`만 사용, `text` 컬럼 무시 | `id,comment` CSV에서 잘못된 컬럼 적재 | 헤더 `text` 인덱스 탐색 | T-05, AC-2 | 1 |
 | **EX-03** | Filters에서 `main` 키워드 skip | `"배송"` main만 포함 피드백 필터 누락 | `CATEGORY_KEYWORDS[cat]["main"]` 매칭 | T-06, AC-3 | 1 |
-| **EX-04** | GET `/download` 필터 미실행 | BOM + `text\n` 헤더만, 데이터 0건 | warning `다운로드할 필터 결과가 없습니다.` (Phase 4) | 수동 | 4 |
+| **EX-04** | GET `/download` 필터 미실행 | warning `다운로드할 필터 결과가 없습니다.` (Phase 4 To-Be) | F-05 | `RouteHandlersBoundaryTest` | 4 |
 | **EX-05** | POST `/analyze` 예외 발생 | HTML error alert + **HTTP 200** | F-02 계약 유지 | 수동·스모크 | 2~4 |
-| **EX-06** | CSV `text` 컬럼 없음 alert | error `파일 업로드 중 오류가 발생했습니다.` **우선** (warning `CSV에 text 컬럼이 없습니다.` 대안) | PRD §3.2 F-03 error 우선 | 수동 | 1 |
-| **EX-07** | 빈 CSV 파일 (0 byte) | error `파일 업로드 중 오류가 발생했습니다.` | README 비정상 케이스 | 수동 | 1 |
-| **EX-08** | CSV 헤더만 (`text\n`) | success `0개의 피드백이 입력되었습니다.` | 0건 적재 | 수동 | 1 |
-| **EX-09** | sentiment=`긍정` + 부정 키워드 포함 텍스트 | 긍정 우선 (판정 순서) | F-06 | UT-TA | 1 |
+| **EX-06** | CSV `text` 컬럼 없음 alert | error `파일 업로드 중 오류가 발생했습니다.` **우선** | PRD §3.2 F-03 | `CsvParserTest`, `RouteHandlersBoundaryTest` | 1 |
+| **EX-07** | 빈 CSV 파일 (0 byte) | error `파일 업로드 중 오류가 발생했습니다.` | README 비정상 | `RouteHandlersBoundaryTest` | 1 |
+| **EX-08** | CSV 헤더만 (`text\n`) | success `0개의 피드백이 입력되었습니다.` | 0건 적재 | `CsvParserTest`, `RouteHandlersBoundaryTest` | 1 |
+| **EX-09** | 긍정·부정 SENTIMENT_KEYWORDS 동시 포함(동점) | `positive == negative` → **중립** (가중치 스코어링) | F-06 | `SentimentClassifierTest`, `TextAnalyzerTest` | 1 |
 | **EX-10** | `품질` 카테고리 키워드만, 감정 키워드 없음 | 감정=중립, 카테고리=품질 | T-07, quality≠sentiment | UT-TA | 1 |
 
 ### 5.1 Failing Test → Green 워크플로 (Phase 1)
@@ -337,8 +337,8 @@ genhtml coverage.filtered.info --output-directory build/coverage_html
 | 작업 | 테스트 전략 |
 |------|-------------|
 | Logger → HTML alert (AC-6) | 수동: warning/error 메시지 확인 |
-| `/download` 대상·warning (M-6, EX-04) | 수동: 필터 미실행 시 warning |
-| T-11 (AC-7) 개행 E2E | 수동: analyze → filter → download |
+| `/download` 대상·warning (M-6, EX-04) | `RouteHandlersBoundaryTest.EX04_*` |
+| T-11 (AC-7) 개행 E2E | `BoundaryUseCaseTest.T11_*`, `RouteHandlersBoundaryTest.T11_*` |
 | 부록 A 체크리스트 | **AC-5** 완료 |
 
 ### 8.5 Phase 5 — 선택 과제 (L-6, 3h)

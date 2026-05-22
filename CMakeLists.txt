@@ -57,11 +57,22 @@ add_executable(feedback_analyzer_tests
     tests/KeywordUtilsTest.cpp
     tests/GoldenMasterTest.cpp
     tests/FileHandlerTest.cpp
+    tests/BoundaryUseCaseTest.cpp
+    tests/RouteHandlersBoundaryTest.cpp
     src/cpp/CsvParser.cpp
     src/cpp/Constants.cpp
     src/cpp/KeywordRegistry.cpp
     src/cpp/CsvExporter.cpp
     src/cpp/FileHandler.cpp
+    src/cpp/AnalyzeUseCase.cpp
+    src/cpp/FilterUseCase.cpp
+    src/cpp/AppState.cpp
+    src/cpp/FeedbackSession.cpp
+    src/cpp/AppMessages.cpp
+    src/cpp/RouteHandlers.cpp
+    src/cpp/HtmlPageRenderer.cpp
+    src/cpp/FormParser.cpp
+    src/cpp/Logger.cpp
 )
 
 target_include_directories(feedback_analyzer_tests PRIVATE
@@ -81,6 +92,7 @@ if(WIN32)
         _WIN32_WINNT=0x0A00
         WINVER=0x0A00
     )
+    target_link_libraries(feedback_analyzer_tests PRIVATE ws2_32)
 endif()
 
 include(GoogleTest)
