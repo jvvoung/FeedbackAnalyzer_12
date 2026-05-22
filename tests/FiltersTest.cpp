@@ -57,5 +57,16 @@ TEST_F(FiltersTest, Given_MixedThreeFeedbacks_When_FilterAllSentimentAllKeyword_
 // Then:  해당 Feedback 포함
 // test_plan: T-06, AC-3, H-3
 TEST_F(FiltersTest, Given_MainKeywordOnly_When_FilterDelivery_Then_Included) {
-    FAIL() << "RED";  // T-06, AC-3, H-3
+    // Given: Feedback text="택배가 빨라요." (배송 main 키워드만)
+    std::vector<Feedback> feedbacks = {
+        Feedback(u8"택배가 빨라요."),
+    };
+
+    // When: filter keyword=배송, sentiment=전체
+    Filters filters;
+    const auto filtered = filters.fil(feedbacks, u8"전체", u8"배송");
+
+    // Then: 해당 Feedback 포함
+    ASSERT_EQ(filtered.size(), 1u);
+    EXPECT_EQ(filtered[0].getText(), u8"택배가 빨라요.");
 }

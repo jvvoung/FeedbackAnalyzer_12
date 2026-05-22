@@ -47,13 +47,9 @@ public:
             for (const auto& item : tmpFiltered) {
                 std::string txt = item.getText();
                 if (Constants::CATEGORY_KEYWORDS.count(kFilter)) {
-                    const auto& catMap = Constants::CATEGORY_KEYWORDS[kFilter];
-                    for (const auto& subEntry : catMap) {
-                        if (subEntry.first == "main") continue;
-                        if (containsAny(txt, subEntry.second)) {
-                            finalFiltered.push_back(item);
-                            break;
-                        }
+                    const auto& catMap = Constants::CATEGORY_KEYWORDS.at(kFilter);
+                    if (catMap.count("main") && containsAny(txt, catMap.at("main"))) {
+                        finalFiltered.push_back(item);
                     }
                 }
             }
