@@ -18,7 +18,7 @@ FilterResult FilterUseCase::filterAll(const std::vector<Feedback>& feedbacks,
         return result;
     }
 
-    filteredSnapshot_ = result.filtered;
+    AppState::setLastFilteredFeedbacks(result.filtered);
     result.sentimentResults = analyzer_.sent(result.filtered);
     result.keywordResults = analyzer_.kw(result.filtered);
     Logger::logInfo(u8"필터링 결과: " + std::to_string(result.filtered.size()) + u8"개의 피드백");

@@ -10,6 +10,7 @@ add_executable(feedback_analyzer
     src/cpp/KeywordRegistry.cpp
     src/cpp/AnalyzeUseCase.cpp
     src/cpp/FilterUseCase.cpp
+    src/cpp/AppState.cpp
     src/cpp/Logger.cpp
     src/cpp/Session.cpp
     src/cpp/TextAnalyzer.cpp

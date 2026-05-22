@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "AppState.h"
 #include "Feedback.h"
 #include "Filters.h"
 #include "TextAnalyzer.h"
@@ -23,8 +24,8 @@ struct FilterResult {
 
 class FilterUseCase {
 public:
-    FilterUseCase(TextAnalyzer& analyzer, Filters& filters, std::vector<Feedback>& filteredSnapshot)
-        : analyzer_(analyzer), filters_(filters), filteredSnapshot_(filteredSnapshot) {}
+    FilterUseCase(TextAnalyzer& analyzer, Filters& filters)
+        : analyzer_(analyzer), filters_(filters) {}
 
     FilterResult filterAll(const std::vector<Feedback>& feedbacks,
                            const std::string& sentiment,
@@ -33,5 +34,4 @@ public:
 private:
     TextAnalyzer& analyzer_;
     Filters& filters_;
-    std::vector<Feedback>& filteredSnapshot_;
 };

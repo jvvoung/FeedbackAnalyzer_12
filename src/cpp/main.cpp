@@ -1,6 +1,7 @@
 #include "httplib.h"
 #include "Feedback.h"
 #include "Constants.h"
+#include "AppState.h"
 #include "Session.h"
 #include "TextAnalyzer.h"
 #include "Filters.h"
@@ -15,7 +16,6 @@
 #include <ctime>
 #include <iomanip>
 
-static std::vector<Feedback> fil_data;
 static TextAnalyzer textAnalyzer;
 static Filters filters;
 static FileHandler fileHandler;
@@ -320,7 +320,7 @@ int main() {
         try {
             const auto& feedbacks = Session::getCurrentFeedbacks();
             auto params = parseForm(req.body);
-            FilterUseCase filterUseCase(textAnalyzer, filters, fil_data);
+            FilterUseCase filterUseCase(textAnalyzer, filters);
             const FilterResult result =
                 filterUseCase.filterAll(feedbacks, params["sentiment"], params["keyword"]);
 
@@ -346,7 +346,8 @@ int main() {
 
     // GET /download
     svr.Get("/download", [](const httplib::Request&, httplib::Response& res) {
-        if (fil_data.empty()) {
+        const auto& filtered = AppState::lastFilteredFeedbacksConst();
+        if (filtered.empty()) {
             Logger::logWarning(u8"다운로드할 필터 결과가 없습니다.");
             std::string html = renderPage("", u8"다운로드할 필터 결과가 없습니다.", "", {}, {}, {});
             res.set_content(html, "text/html; charset=UTF-8");
@@ -356,7 +357,7 @@ int main() {
         // UTF-8 BOM
         csv << "\xEF\xBB\xBF";
         csv << "text\n";
-        for (const auto& iter : fil_data) {
+        for (const auto& iter : filtered) {
             csv << iter.getText() << "\n";
         }
         res.set_header("Content-Disposition", "attachment; filename=\"filtered_feedback.csv\"");
